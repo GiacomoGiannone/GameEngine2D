@@ -168,6 +168,13 @@ namespace GE
     void CharacterController::move(float deltaTime, float& x_position, float& y_position, const std::vector<GE::GameObject*>& gameObjects)
     {
         velocity.x = 0.0f;
+        if (Y_movement_enabled)
+        {
+            velocity.y = 0.0f;
+        }
+
+        //depending on whether Y_movement_enabled is true or false,
+        //we can move the character up and down with the W and S keys, or only left and right with the A and D keys
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
         {
@@ -179,7 +186,17 @@ namespace GE
             velocity.x += speed;
         }
 
-        if (onGround && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
+        if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+        {
+            velocity.y -= speed;
+        }
+
+        if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+        {
+            velocity.y += speed;
+        }
+
+        if (!Y_movement_enabled && onGround && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
         {
             velocity.y = jumpVelocity;
             onGround = false;
@@ -227,8 +244,11 @@ namespace GE
         }
 
         x_position = newX;
-
-        velocity.y += gravity * deltaTime;
+        // Only apply gravity in platformer mode.
+        if (!Y_movement_enabled)
+        {
+            velocity.y += gravity * deltaTime;
+        }
         float newY = y_position + velocity.y * deltaTime;
         pY = newY;
         onGround = false;

@@ -37,6 +37,8 @@ public:
         );
         //get the character controller to print debug info
         rectangleObject->getComponentOfType<GE::CharacterController>().setDebugPrint(false);
+        //set this variable to true to enable Y movement with W and S keys
+        rectangleObject->getComponentOfType<GE::CharacterController>().setYMovementEnabled(false);
         
         rectangleObject2 = new GE::GameObject();
         rectangleObject2->getTransform().setPosition(100.0f, 400.0f);

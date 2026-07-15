@@ -64,6 +64,8 @@ namespace GE
         void setBoxCollider(float width, float height) { setRectangleShape(width, height); }
         void setCircleCollider(float radius) { setCircleShape(radius); }
         void setConvexCollider(const std::vector<sf::Vector2f>& points) { setConvexShape(points); }
+        void setYMovementEnabled(bool enabled) { Y_movement_enabled = enabled; }
+        bool isYMovementEnabled() const { return Y_movement_enabled; }
 
         virtual ~CharacterController() = default;
 
