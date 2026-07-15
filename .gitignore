@@ -1,0 +1,23 @@
+# CMake
+build/
+cmake-build-*/
+examples/build/
+
+# Visual Studio
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+
+# Compilati
+*.exe   
+*.dll
+*.lib
+*.obj
+
+# SFML scaricata da FetchContent
+_deps/
+
+# IDE
+.vscode/
+.idea/

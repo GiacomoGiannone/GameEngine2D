@@ -1,0 +1,56 @@
+#include "Engine.hpp"
+#include "graphics/Renderer.hpp"
+#include "Scene.hpp"
+
+namespace GE
+{
+    Engine::Engine(int width, int height, const std::string& title)
+    {
+        renderer = new Renderer(width, height, title);
+        activeScene = nullptr;
+    }
+
+    void Engine::setScene(Scene* scene)
+    {
+        activeScene = scene;
+    }
+
+    void Engine::update()
+    {
+        while (const auto event = renderer->getWindow()->pollEvent())
+        {
+            if (event->is<sf::Event::Closed>())
+            {
+                renderer->getWindow()->close();
+            }
+        }
+
+        const float deltaTime = 1.0f / 60.0f;
+
+        if (activeScene != nullptr)
+        {
+            activeScene->update(deltaTime);
+        }
+    }
+
+    void Engine::render()
+    {
+        renderer->clear();
+
+        if (activeScene != nullptr)
+        {
+            activeScene->render(*renderer);
+        }
+
+        renderer->display();
+    }
+
+    void Engine::run()
+    {
+        while (renderer->isOpen())
+        {
+            update();
+            render();
+        }
+    }
+}
