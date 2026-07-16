@@ -18,8 +18,11 @@ namespace GE
             sf::Texture& texture;
             Transform& transform;
             const std::string textureId;
+            sf::Sprite* sprite;
         public:
-            SpriteRenderer(const std::string& textureId, const std::filesystem::path& texturePath, Transform& transform);
+            SpriteRenderer() = default;
+            SpriteRenderer(const std::string& textureId, const std::filesystem::path& texturePath, 
+                Transform& transform, int UpperCorner = 0, int LowerCorner = 0, int Width = 0, int Height = 0);
             ~SpriteRenderer();
 
             void update(float deltaTime) override;

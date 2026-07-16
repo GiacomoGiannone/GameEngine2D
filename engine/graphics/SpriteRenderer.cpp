@@ -4,9 +4,17 @@
 
 namespace GE
 {
-    SpriteRenderer::SpriteRenderer(const std::string& textureId, const std::filesystem::path& texturePath, Transform& transform)
+    SpriteRenderer::SpriteRenderer(const std::string& textureId, const std::filesystem::path& texturePath, Transform& transform, int UpperCorner, int LowerCorner, int Width, int Height)
         : Component(), texture(TextureManager::getInstance()->loadTexture(textureId, texturePath)), transform(transform), textureId(textureId)
     {
+        if (Width > 0 && Height > 0)
+        {
+            sprite = new sf::Sprite(texture, sf::IntRect{{UpperCorner, LowerCorner}, {Width, Height}});
+        }
+        else
+        {
+            sprite = new sf::Sprite(texture);
+        }
     }
 
     void SpriteRenderer::update(float deltaTime)
@@ -16,9 +24,9 @@ namespace GE
 
     void SpriteRenderer::render(Renderer& renderer)
     {
-        sf::Sprite sprite(texture);
-        sprite.setPosition(sf::Vector2f(transform.getX(), transform.getY()));
-        renderer.draw(sprite);
+
+        sprite->setPosition(sf::Vector2f(transform.getX(), transform.getY()));
+        renderer.draw(*sprite);
     }
 
     SpriteRenderer::~SpriteRenderer()

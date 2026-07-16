@@ -151,14 +151,18 @@ namespace GE
             {
                 case ColliderShape::Rectangle:
                     collisionBox.setPosition(sf::Vector2f(owner->getX(), owner->getY()));
+                    //draw with alpha to make it semi-transparent
+                    collisionBox.setFillColor(sf::Color(255, 0, 0, 100));
                     renderer.draw(collisionBox);
                     break;
                 case ColliderShape::Circle:
                     collisionCircle.setPosition(sf::Vector2f(owner->getX(), owner->getY()));
+                    collisionCircle.setFillColor(sf::Color(255, 0, 0, 100));
                     renderer.draw(collisionCircle);
                     break;
                 case ColliderShape::Convex:
                     collisionConvex.setPosition(sf::Vector2f(owner->getX(), owner->getY()));
+                    collisionConvex.setFillColor(sf::Color(255, 0, 0, 100));
                     renderer.draw(collisionConvex);
                     break;
             }

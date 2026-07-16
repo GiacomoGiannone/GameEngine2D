@@ -25,21 +25,16 @@ public:
         // Player-controlled rectangle (camera will follow this).
         rectangleObject = new GE::GameObject();
         rectangleObject->getTransform().setPosition(250.0f, 180.0f);
-        // rectangleObject->addComponent<GE::RectangleRenderer>(
-        //     280.0f,
-        //     180.0f,
-        //     GE::Color(90, 170, 255),
-        //     rectangleObject->getTransform()
-        // );
+
         auto& characterController = rectangleObject->addComponent<GE::CharacterController>(
             200.0f, // speed
-            280.0f, // width
-            180.0f  // height
+            20.0f, // width of the collision box
+            40.0f  // height of the collision box
         );
         //get the character controller to print debug info
-        rectangleObject->getComponentOfType<GE::CharacterController>().setDebugPrint(false);
+        rectangleObject->getComponentOfType<GE::CharacterController>().setDebugPrint(true);
         //set this variable to true to enable Y movement with W and S keys
-        rectangleObject->getComponentOfType<GE::CharacterController>().setYMovementEnabled(false);
+        rectangleObject->getComponentOfType<GE::CharacterController>().setYMovementEnabled(true);
 
         //add sprite renderer to rectangleObject
         rectangleObject->addComponent<GE::SpriteRenderer>(
