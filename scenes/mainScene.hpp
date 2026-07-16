@@ -9,6 +9,7 @@
 #include "graphics/RectangleRenderer.hpp"
 #include "core/CharacterController.hpp"
 #include "core/CollisionBox.hpp"
+#include "graphics/SpriteRenderer.hpp"
 
 class MainScene : public GE::Scene
 {
@@ -24,12 +25,12 @@ public:
         // Player-controlled rectangle (camera will follow this).
         rectangleObject = new GE::GameObject();
         rectangleObject->getTransform().setPosition(250.0f, 180.0f);
-        rectangleObject->addComponent<GE::RectangleRenderer>(
-            280.0f,
-            180.0f,
-            GE::Color(90, 170, 255),
-            rectangleObject->getTransform()
-        );
+        // rectangleObject->addComponent<GE::RectangleRenderer>(
+        //     280.0f,
+        //     180.0f,
+        //     GE::Color(90, 170, 255),
+        //     rectangleObject->getTransform()
+        // );
         auto& characterController = rectangleObject->addComponent<GE::CharacterController>(
             200.0f, // speed
             280.0f, // width
@@ -39,6 +40,13 @@ public:
         rectangleObject->getComponentOfType<GE::CharacterController>().setDebugPrint(false);
         //set this variable to true to enable Y movement with W and S keys
         rectangleObject->getComponentOfType<GE::CharacterController>().setYMovementEnabled(false);
+
+        //add sprite renderer to rectangleObject
+        rectangleObject->addComponent<GE::SpriteRenderer>(
+            "player_texture",
+            "assets/player.png",
+            rectangleObject->getTransform()
+        );
         
         rectangleObject2 = new GE::GameObject();
         rectangleObject2->getTransform().setPosition(100.0f, 400.0f);
