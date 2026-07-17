@@ -12,21 +12,48 @@ namespace GE
         textures.clear();
     }
 
-    TextureManager* TextureManager::getInstance()
+    TextureManager& TextureManager::getInstance()
     {
         static TextureManager instance;
-        return &instance;
+        return instance;
+    }
+
+    void TextureManager::addTexture(const std::string& id, const sf::Image& image)
+    {
+        auto texture = std::make_unique<sf::Texture>();
+        if (!texture->loadFromImage(image))
+        {
+            throw std::runtime_error("Failed to create texture from image: " + id);
+        }
+        textures[id] = TextureEntry{std::move(texture), 1};
     }
 
     sf::Texture& TextureManager::loadTexture(const std::string& id, const std::filesystem::path& path)
     {
-        auto texture = std::make_unique<sf::Texture>();
-        if (!texture->loadFromFile(path.string()))
+        auto it = textures.find(id);
+
+        if(it != textures.end())
         {
-            throw std::runtime_error("Failed to load texture: " + path.string());
+            ++it->second.referenceCount;
+            return *it->second.texture;
         }
-        textures[id] = std::move(texture);
-        return *textures[id];
+
+
+        auto texture = std::make_unique<sf::Texture>();
+
+        if(!texture->loadFromFile(path.string()))
+        {
+            throw std::runtime_error(
+                "Failed to load texture: " + path.string()
+            );
+        }
+
+
+        auto& ref = *texture;
+
+        textures[id] = TextureEntry{std::move(texture), 1};
+
+        return ref;
     }
 
     sf::Texture& TextureManager::getTexture(const std::string& id)
@@ -36,7 +63,7 @@ namespace GE
         {
             throw std::runtime_error("Texture not found: " + id);
         }
-        return *it->second;
+        return *it->second.texture;
     }
 
     bool TextureManager::exists(const std::string& id) const
@@ -46,6 +73,21 @@ namespace GE
 
     void TextureManager::unloadTexture(const std::string& id)
     {
-        textures.erase(id);
+        auto it = textures.find(id);
+
+        if (it == textures.end())
+        {
+            return;
+        }
+
+        if (it->second.referenceCount > 0)
+        {
+            --it->second.referenceCount;
+        }
+
+        if (it->second.referenceCount == 0)
+        {
+            textures.erase(it);
+        }
     }
 }

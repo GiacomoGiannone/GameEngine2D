@@ -10,11 +10,12 @@
 #include "core/CharacterController.hpp"
 #include "core/CollisionBox.hpp"
 #include "graphics/SpriteRenderer.hpp"
+#include "graphics/SpriteSheet.hpp"
 
 class MainScene : public GE::Scene
 {
 private:
-    GE::GameObject* rectangleObject;
+    GE::GameObject* player;
     GE::GameObject* rectangleObject2;
     GE::GameObject* rectangleObject3;
     GE::GameObject* rectangleObject4;
@@ -23,25 +24,38 @@ public:
     MainScene() : GE::Scene("MainScene")
     {
         // Player-controlled rectangle (camera will follow this).
-        rectangleObject = new GE::GameObject();
-        rectangleObject->getTransform().setPosition(250.0f, 180.0f);
+        player = new GE::GameObject();
+        player->getTransform().setPosition(250.0f, 180.0f);
 
-        auto& characterController = rectangleObject->addComponent<GE::CharacterController>(
+        // Add sprite renderer to player FIRST (needed by Animator)
+        auto& spriteRenderer = player->addComponent<GE::SpriteRenderer>(
+            "player_texture",
+            "assets/player.png",
+            player->getTransform()
+        );
+
+        // Add character controller
+        auto& characterController = player->addComponent<GE::CharacterController>(
             200.0f, // speed
             20.0f, // width of the collision box
             40.0f  // height of the collision box
         );
         //get the character controller to print debug info
-        rectangleObject->getComponentOfType<GE::CharacterController>().setDebugPrint(true);
+        player->getComponentOfType<GE::CharacterController>().setDebugPrint(true);
         //set this variable to true to enable Y movement with W and S keys
-        rectangleObject->getComponentOfType<GE::CharacterController>().setYMovementEnabled(true);
+        player->getComponentOfType<GE::CharacterController>().setYMovementEnabled(true);
 
-        //add sprite renderer to rectangleObject
-        rectangleObject->addComponent<GE::SpriteRenderer>(
-            "player_texture",
-            "assets/player.png",
-            rectangleObject->getTransform()
-        );
+        // Create sprite sheet and animator
+        GE::SpriteSheet spriteSheet("player_texture", "assets/player.png", 64, 64);
+        auto& playerAnimator = player->addComponent<GE::Animator>(spriteRenderer);
+        // playerAnimator.addAnimation(
+        //     "walk",
+        //     spriteSheet.createClip(
+        //         {0, 1, 2, 3, 4, 5, 6, 7}, // Frame indices for walking animation
+        //         0.1f, // Frame duration
+        //         true   // Loop the animation
+        //     )
+        // );
         
         rectangleObject2 = new GE::GameObject();
         rectangleObject2->getTransform().setPosition(100.0f, 400.0f);
@@ -80,23 +94,23 @@ public:
         rectangleObject4->setRenderOrder(100); // Set a higher render order for this object
         rectangleObject3->setRenderOrder(100); // Set a lower render order for this object
         rectangleObject2->setRenderOrder(100); // Set a lower render order for this object
-        rectangleObject->setRenderOrder(100); // Set a lower render order for this object
+        player->setRenderOrder(100); // Set a lower render order for this object
 
         addGameObject(rectangleObject4);
 
-        addGameObject(rectangleObject);
+        addGameObject(player);
         characterController.setWorldObjects(&getGameObjects());
 
-        setCameraTarget(rectangleObject);
+        setCameraTarget(player);
 
         //get the camera and set a larger viewport size to see more of the scene
-        getCamera().setViewportSize(800.0f, 600.0f);
+        getCamera().setViewportSize(800, 600);
     }
 
     virtual ~MainScene()
     {
-        removeGameObject(rectangleObject);
-        delete rectangleObject;
+        removeGameObject(player);
+        delete player;
 
         removeGameObject(rectangleObject2);
         delete rectangleObject2;
@@ -109,5 +123,5 @@ public:
     }
 
     // Used by the engine/camera to follow the player rectangle.
-    GE::GameObject* getPlayer() const { return rectangleObject; }
+    GE::GameObject* getPlayer() const { return player; }
 };

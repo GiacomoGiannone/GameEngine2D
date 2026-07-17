@@ -25,6 +25,9 @@ namespace GE
                 Transform& transform, int UpperCorner = 0, int LowerCorner = 0, int Width = 0, int Height = 0);
             ~SpriteRenderer();
 
+            const sf::Texture& getTexture() const;
+            void setTextureRect(const sf::IntRect& rect);
+
             void update(float deltaTime) override;
             void render(Renderer& renderer) override;
     };

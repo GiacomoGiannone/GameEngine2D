@@ -5,16 +5,25 @@
 namespace GE
 {
     SpriteRenderer::SpriteRenderer(const std::string& textureId, const std::filesystem::path& texturePath, Transform& transform, int UpperCorner, int LowerCorner, int Width, int Height)
-        : Component(), texture(TextureManager::getInstance()->loadTexture(textureId, texturePath)), transform(transform), textureId(textureId)
+        : texture(TextureManager::getInstance().loadTexture(textureId, texturePath)), transform(transform), textureId(textureId)
     {
+        sprite = new sf::Sprite(texture);
+        sprite->setTexture(texture);
+
         if (Width > 0 && Height > 0)
         {
-            sprite = new sf::Sprite(texture, sf::IntRect{{UpperCorner, LowerCorner}, {Width, Height}});
+            sprite->setTextureRect(sf::IntRect(sf::Vector2i(UpperCorner, LowerCorner), sf::Vector2i(Width, Height)));
         }
-        else
-        {
-            sprite = new sf::Sprite(texture);
-        }
+    }
+
+    const sf::Texture& SpriteRenderer::getTexture() const
+    {
+        return texture;
+    }
+
+    void SpriteRenderer::setTextureRect(const sf::IntRect& rect)
+    {
+        sprite->setTextureRect(rect);
     }
 
     void SpriteRenderer::update(float deltaTime)
@@ -24,14 +33,14 @@ namespace GE
 
     void SpriteRenderer::render(Renderer& renderer)
     {
-
         sprite->setPosition(sf::Vector2f(transform.getX(), transform.getY()));
         renderer.draw(*sprite);
     }
 
     SpriteRenderer::~SpriteRenderer()
     {
-        //call the texture manager to unload the texture
-        TextureManager::getInstance()->unloadTexture(textureId);
+        // Call the texture manager to unload the texture
+        TextureManager::getInstance().unloadTexture(textureId);
+        delete sprite;
     }
 }
