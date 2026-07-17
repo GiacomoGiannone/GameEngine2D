@@ -19,6 +19,8 @@ private:
     GE::GameObject* rectangleObject2;
     GE::GameObject* rectangleObject3;
     GE::GameObject* rectangleObject4;
+    GE::SpriteSheet* playerSpriteSheet;
+    GE::SpriteSheet* playerSpriteSheetExample;
 
 public:
     MainScene() : GE::Scene("MainScene")
@@ -46,16 +48,44 @@ public:
         player->getComponentOfType<GE::CharacterController>().setYMovementEnabled(true);
 
         // Create sprite sheet and animator
-        GE::SpriteSheet spriteSheet("player_texture", "assets/player.png", 64, 64);
+        playerSpriteSheet = new GE::SpriteSheet("player_walk", "assets/Walk.png", 64, 64);
         auto& playerAnimator = player->addComponent<GE::Animator>(spriteRenderer);
-        // playerAnimator.addAnimation(
-        //     "walk",
-        //     spriteSheet.createClip(
-        //         {0, 1, 2, 3, 4, 5, 6, 7}, // Frame indices for walking animation
-        //         0.1f, // Frame duration
-        //         true   // Loop the animation
-        //     )
-        // );
+        playerAnimator.addAnimation(
+            "walk",
+            playerSpriteSheet->createClip(
+                {0, 1, 2, 3, 4, 5, 6, 7}, // Frame indices for walking animation
+                0.1f, // Frame duration
+                true   // Loop the animation
+            )
+        );
+
+        playerSpriteSheetExample = new GE::SpriteSheet("player_idle", "assets/forest1.png", 128, 128);
+        playerAnimator.addAnimation(
+            "idle",
+            playerSpriteSheetExample->createClip(
+                {0, 1, 2, 3}, // Frame indices for idle animation
+                0.2f, // Frame duration
+                true   // Loop the animation
+            )
+        );
+
+        playerAnimator.addTransition(
+            "idle",
+            "walk",
+            [&characterController]() {
+                return characterController.isMoving();
+            }
+        );
+
+        playerAnimator.addTransition(
+            "walk",
+            "idle",
+            [&characterController]() {
+                return !characterController.isMoving();
+            }
+        );
+
+        playerAnimator.play("idle");
         
         rectangleObject2 = new GE::GameObject();
         rectangleObject2->getTransform().setPosition(100.0f, 400.0f);
@@ -120,6 +150,8 @@ public:
 
         removeGameObject(rectangleObject4);
         delete rectangleObject4;
+
+        delete playerSpriteSheet;
     }
 
     // Used by the engine/camera to follow the player rectangle.

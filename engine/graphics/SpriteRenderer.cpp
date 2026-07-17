@@ -5,10 +5,10 @@
 namespace GE
 {
     SpriteRenderer::SpriteRenderer(const std::string& textureId, const std::filesystem::path& texturePath, Transform& transform, int UpperCorner, int LowerCorner, int Width, int Height)
-        : texture(TextureManager::getInstance().loadTexture(textureId, texturePath)), transform(transform), textureId(textureId)
+        : texture(&TextureManager::getInstance().loadTexture(textureId, texturePath)), transform(transform), textureId(textureId)
     {
-        sprite = new sf::Sprite(texture);
-        sprite->setTexture(texture);
+        sprite = new sf::Sprite(*texture);
+        sprite->setTexture(*texture);
 
         if (Width > 0 && Height > 0)
         {
@@ -18,7 +18,7 @@ namespace GE
 
     const sf::Texture& SpriteRenderer::getTexture() const
     {
-        return texture;
+        return *texture;
     }
 
     void SpriteRenderer::setTextureRect(const sf::IntRect& rect)
@@ -42,5 +42,11 @@ namespace GE
         // Call the texture manager to unload the texture
         TextureManager::getInstance().unloadTexture(textureId);
         delete sprite;
+    }
+
+    void SpriteRenderer::setTexture(sf::Texture& texture)
+    {
+        this->texture = &texture;
+        sprite->setTexture(texture);
     }
 }

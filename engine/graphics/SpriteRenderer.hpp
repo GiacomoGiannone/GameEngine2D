@@ -15,7 +15,7 @@ namespace GE
     {
         private:
             //use the texture manager to load the texture
-            sf::Texture& texture;
+            sf::Texture* texture;
             Transform& transform;
             const std::string textureId;
             sf::Sprite* sprite;
@@ -27,6 +27,7 @@ namespace GE
 
             const sf::Texture& getTexture() const;
             void setTextureRect(const sf::IntRect& rect);
+            void setTexture(sf::Texture& texture);
 
             void update(float deltaTime) override;
             void render(Renderer& renderer) override;
