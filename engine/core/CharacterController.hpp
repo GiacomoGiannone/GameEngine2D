@@ -67,7 +67,7 @@ namespace GE
         void setConvexCollider(const std::vector<sf::Vector2f>& points) { setConvexShape(points); }
         void setYMovementEnabled(bool enabled) { Y_movement_enabled = enabled; }
         bool isYMovementEnabled() const { return Y_movement_enabled; }
-        bool isMoving() const { return velocity.x != 0.0f || velocity.y != 0.0f; }
+        bool isMoving() const { return std::abs(velocity.x) > 0.1f || std::abs(velocity.y) > 0.1f; }
 
         virtual ~CharacterController() = default;
 

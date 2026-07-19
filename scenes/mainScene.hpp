@@ -20,7 +20,9 @@ private:
     GE::GameObject* rectangleObject3;
     GE::GameObject* rectangleObject4;
     GE::SpriteSheet* playerSpriteSheet;
-    GE::SpriteSheet* playerSpriteSheetExample;
+    GE::SpriteSheet* playerSpriteSheetIdle;
+    GE::SpriteSheet* playerSpriteSheetWalk;
+    GE::SpriteSheet* playerSpriteSheetAttack;
 
 public:
     MainScene() : GE::Scene("MainScene")
@@ -38,9 +40,9 @@ public:
 
         // Add character controller
         auto& characterController = player->addComponent<GE::CharacterController>(
-            200.0f, // speed
-            20.0f, // width of the collision box
-            40.0f  // height of the collision box
+            100.0f, // speed
+            35.0f, // width of the collision box
+            100.0f  // height of the collision box
         );
         //get the character controller to print debug info
         player->getComponentOfType<GE::CharacterController>().setDebugPrint(true);
@@ -48,24 +50,55 @@ public:
         player->getComponentOfType<GE::CharacterController>().setYMovementEnabled(true);
 
         // Create sprite sheet and animator
-        playerSpriteSheet = new GE::SpriteSheet("player_walk", "assets/Walk.png", 64, 64);
+        playerSpriteSheetWalk = new GE::SpriteSheet("player_walk", "assets/Walk_2.png", 
+            162, 162, //dimensione originale di una singola cella
+             65, 38, //punto iniziale dello sprite
+             120, 140 ); //dimensione dello sprite
+        playerSpriteSheetAttack = new GE::SpriteSheet("player_attack", "assets/Attack.png", 162, 162);
+        playerSpriteSheetIdle = new GE::SpriteSheet("player_idle", "assets/Idle.png", 
+            162, 162
+            , 55, 38, //punto iniziale dello sprite
+             120, 140 ); //dimensione dello sprite
+        
         auto& playerAnimator = player->addComponent<GE::Animator>(spriteRenderer);
         playerAnimator.addAnimation(
             "walk",
-            playerSpriteSheet->createClip(
-                {0, 1, 2, 3, 4, 5, 6, 7}, // Frame indices for walking animation
-                0.1f, // Frame duration
-                true   // Loop the animation
+            playerSpriteSheetWalk->createClip(
+                {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}, // Frame indices for walking animation, till 25
+                0.05f, // Frame duration
+                true,
+                0,
+                0,
+                0,
+                0
             )
         );
 
-        playerSpriteSheetExample = new GE::SpriteSheet("player_idle", "assets/forest1.png", 128, 128);
         playerAnimator.addAnimation(
             "idle",
-            playerSpriteSheetExample->createClip(
-                {0, 1, 2, 3}, // Frame indices for idle animation
-                0.2f, // Frame duration
-                true   // Loop the animation
+            playerSpriteSheetIdle->createClip(
+                {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, // Frame indices for idle animation, till 11
+                0.10f, // Frame duration
+                true, 
+                0,
+                0,
+                0,
+                0
+                   // Loop the animation
+            )
+        );
+
+        playerAnimator.addAnimation(
+            "attack",
+            playerSpriteSheetAttack->createClip(
+                {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}, // Frame indices for attack animation, till 14
+                0.10f, // Frame duration
+                false, 
+                10,
+                10,
+                10,
+                10
+                  // Do not loop the animation
             )
         );
 
@@ -151,7 +184,9 @@ public:
         removeGameObject(rectangleObject4);
         delete rectangleObject4;
 
-        delete playerSpriteSheet;
+        delete playerSpriteSheetWalk;
+        delete playerSpriteSheetAttack;
+        delete playerSpriteSheetIdle;
     }
 
     // Used by the engine/camera to follow the player rectangle.

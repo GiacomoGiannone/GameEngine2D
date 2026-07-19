@@ -4,14 +4,24 @@
 
 namespace GE
 {
-    sf::IntRect SpriteSheet::getFrame(int index)
+    sf::IntRect SpriteSheet::getFrame(int index, int cropLeft, int cropRight, int cropTop, int cropBottom)
     {
         int col = index % columns;
         int row = index / columns;
-        return sf::IntRect(sf::Vector2i(col * frameWidth, row * frameHeight), sf::Vector2i(frameWidth, frameHeight));
+        return {
+        {
+            col * cellWidth + regionX,
+            row * cellHeight + regionY
+        },
+        {
+            regionWidth,
+            regionHeight
+        }
+    };
     }
 
-    AnimationClip SpriteSheet::createClip(std::initializer_list<int> frameIndices, float frameDuration, bool loop)
+    AnimationClip SpriteSheet::createClip(std::initializer_list<int> frameIndices, float frameDuration, bool loop,
+                                            int cropLeft, int cropRight, int cropTop, int cropBottom)
     {
         std::cout << "Creating animation clip with frame duration: " << frameDuration << " and loop: " << loop << std::endl;
         AnimationClip clip;
@@ -28,7 +38,7 @@ namespace GE
 
         for (int index : frameIndices)
         {
-            clip.frames.push_back(getFrame(index));
+            clip.frames.push_back(getFrame(index, cropLeft, cropRight, cropTop, cropBottom));
         }
         std::cout << "Created animation clip with " << clip.frames.size() << " frames." << std::endl;
         return clip;

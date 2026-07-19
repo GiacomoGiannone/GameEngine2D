@@ -45,6 +45,7 @@ namespace GE
             std::string currentAnimation;
             size_t currentFrame = 0;
             float elapsedTime = 0.0f;
+            static int frameCounter;
         public:
             Animator(SpriteRenderer& spriteRenderer);
             void addAnimation(const std::string& name, const AnimationClip& animation);
