@@ -39,6 +39,7 @@ namespace GE
         //if Y_movement_enabled is true, you can move the character up and down with the W and S keys, 
         //otherwise the character can only move left and right with the A and D keys
         bool Y_movement_enabled = false;
+        Animator* animator = nullptr;
 
         static bool getCollisionBox(const GE::GameObject* gameObject, const GE::CollisionBox*& outBox);
 
@@ -68,6 +69,7 @@ namespace GE
         void setYMovementEnabled(bool enabled) { Y_movement_enabled = enabled; }
         bool isYMovementEnabled() const { return Y_movement_enabled; }
         bool isMoving() const { return std::abs(velocity.x) > 0.1f || std::abs(velocity.y) > 0.1f; }
+        void setAnimator(Animator* animator) { this->animator = animator; }
 
         virtual ~CharacterController() = default;
 

@@ -130,6 +130,14 @@ namespace GE
     {
         transitions.push_back({fromAnimation, toAnimation, condition});
     }
+
+    void Animator::setFlipped(bool flipped)
+    {
+        spriteRenderer.setScale(
+            flipped ? -1.0f : 1.0f,
+            1.0f
+        );
+    }
 }
 
 //init frame counter

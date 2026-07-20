@@ -24,6 +24,8 @@ namespace GE
     void SpriteRenderer::setTextureRect(const sf::IntRect& rect)
     {
         sprite->setTextureRect(rect);
+
+        //sprite->setOrigin({rect.size.x / 2.f,rect.size.y / 2.f});
     }
 
     void SpriteRenderer::update(float deltaTime)
@@ -48,5 +50,10 @@ namespace GE
     {
         this->texture = &texture;
         sprite->setTexture(texture);
+    }
+
+    void SpriteRenderer::setScale(float scaleX, float scaleY)
+    {
+        sprite->setScale({scaleX, scaleY});
     }
 }

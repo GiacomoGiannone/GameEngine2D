@@ -53,6 +53,7 @@ namespace GE
             void update(float deltaTime) override;
             void render(Renderer& renderer) override;
             void addTransition(const std::string& fromAnimation, const std::string& toAnimation, std::function<bool()> condition);
+            void setFlipped(bool flipped);
     };
 
 }

@@ -45,7 +45,7 @@ public:
             100.0f  // height of the collision box
         );
         //get the character controller to print debug info
-        player->getComponentOfType<GE::CharacterController>().setDebugPrint(false);
+        player->getComponentOfType<GE::CharacterController>().setDebugPrint(true);
         //set this variable to true to enable Y movement with W and S keys
         player->getComponentOfType<GE::CharacterController>().setYMovementEnabled(true);
 
@@ -64,6 +64,8 @@ public:
              120, 140 ); //dimensione dello sprite
         
         auto& playerAnimator = player->addComponent<GE::Animator>(spriteRenderer);
+        characterController.setAnimator(&playerAnimator);
+
         playerAnimator.addAnimation(
             "walk",
             playerSpriteSheetWalk->createClip(

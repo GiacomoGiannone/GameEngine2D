@@ -7,6 +7,7 @@
 #include <limits>
 #include <SFML/Window/Keyboard.hpp>
 #include "graphics/Renderer.hpp"
+#include "graphics/Animator.hpp"
 
 namespace GE
 {
@@ -183,11 +184,19 @@ namespace GE
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
         {
             velocity.x -= speed;
+            if(animator)
+            {
+                animator->setFlipped(true);
+            }
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
         {
             velocity.x += speed;
+            if(animator)
+            {
+                animator->setFlipped(false);
+            }
         }
 
         if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
