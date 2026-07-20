@@ -52,17 +52,18 @@ public:
         // Create sprite sheet and animator
         playerSpriteSheetWalk = new GE::SpriteSheet("player_walk", "assets/Walk_3.png", 
             162, 162, //dimensione originale di una singola cella
-             55, 38, //punto iniziale dello sprite
+             21, 11, //punto iniziale dello sprite
              120, 140 ); //dimensione dello sprite
         playerSpriteSheetAttack = new GE::SpriteSheet("player_attack", "assets/Attack.png", 
             162, 162
-            , 55, 38, //punto iniziale dello sprite
+            , 21, 11, //punto iniziale dello sprite
              120, 140 ); //dimensione dello sprite);
         playerSpriteSheetIdle = new GE::SpriteSheet("player_idle", "assets/Idle.png", 
             162, 162
-            , 55, 38, //punto iniziale dello sprite
+            , 21, 11, //punto iniziale dello sprite
              120, 140 ); //dimensione dello sprite
         
+            
         auto& playerAnimator = player->addComponent<GE::Animator>(spriteRenderer);
         characterController.setAnimator(&playerAnimator);
 

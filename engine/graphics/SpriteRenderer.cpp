@@ -14,6 +14,10 @@ namespace GE
         {
             sprite->setTextureRect(sf::IntRect(sf::Vector2i(UpperCorner, LowerCorner), sf::Vector2i(Width, Height)));
         }
+
+        // --- AGGIUNGI QUESTA RIGA ---
+        sprite->setOrigin({Width / 2.0f, Height / 2.0f});
+        // ---------------------------
     }
 
     const sf::Texture& SpriteRenderer::getTexture() const
@@ -25,18 +29,53 @@ namespace GE
     {
         sprite->setTextureRect(rect);
 
-        //sprite->setOrigin({rect.size.x / 2.f,rect.size.y / 2.f});
+        sprite->setOrigin({rect.size.x / 2.f,rect.size.y / 2.f});
     }
 
     void SpriteRenderer::update(float deltaTime)
     {
         // No update logic needed for the sprite renderer.
+        auto r = sprite->getTextureRect();
+
+    std::cout
+        << r.position.x << " "
+        << r.position.y << " "
+        << r.size.x << " "
+        << r.size.y
+        << std::endl;
     }
 
     void SpriteRenderer::render(Renderer& renderer)
     {
-        sprite->setPosition(sf::Vector2f(transform.getX(), transform.getY()));
+        sprite->setPosition({transform.getX(), transform.getY()});
         renderer.draw(*sprite);
+
+        // DEBUG
+        sf::RectangleShape outline;
+
+        const auto rect = sprite->getTextureRect();
+
+        outline.setSize({
+            static_cast<float>(rect.size.x),
+            static_cast<float>(rect.size.y)
+        });
+
+        outline.setOrigin({rect.size.x / 2.f, rect.size.y / 2.f});
+        outline.setPosition(sprite->getPosition());
+
+        outline.setFillColor(sf::Color::Transparent);
+        outline.setOutlineThickness(1.f);
+        outline.setOutlineColor(sf::Color::Red);
+
+        renderer.draw(outline);
+
+        sf::CircleShape pivot(3.f);
+        pivot.setFillColor(sf::Color::Green);
+
+        pivot.setOrigin({3.f, 3.f});
+        pivot.setPosition(sprite->getPosition());
+
+        renderer.draw(pivot);
     }
 
     SpriteRenderer::~SpriteRenderer()

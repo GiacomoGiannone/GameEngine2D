@@ -7,6 +7,7 @@ namespace GE
     RectangleRenderer::RectangleRenderer(float width, float height, const sf::Color& color, Transform& transform) : transform(transform)
     {
         rectangle.setSize({width, height});
+        rectangle.setOrigin({width / 2.f, height / 2.f});   // <-- aggiungi questa riga
         rectangle.setFillColor(color);
         this->transform.setWidth(width);
         this->transform.setHeight(height);

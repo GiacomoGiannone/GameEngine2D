@@ -3,6 +3,7 @@
 #include "core/Component.hpp"
 #include "SFML/Graphics.hpp"
 #include "TextureManager.hpp"
+#include <iostream>
 
 namespace GE
 {
