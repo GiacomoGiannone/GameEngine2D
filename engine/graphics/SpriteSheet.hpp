@@ -10,35 +10,47 @@ namespace GE
 {
     class SpriteSheet
     {
-        private:
-            sf::Texture& texture;
+    private:
 
-            int columns;
-            int rows;
+        sf::Texture& texture;
 
-            int cellWidth;
-            int cellHeight;
+        int cellWidth;
+        int cellHeight;
 
-            int regionX;
-            int regionY;
+        int columns;
+        int rows;
 
-            int regionWidth;
-            int regionHeight;
-        public:
-    SpriteSheet(const std::string& textureId, const std::string& path, int cellWidth, int cellHeight, int regionX = 0, int regionY = 0, int regionWidth = -1, int regionHeight = -1)
-        : texture(TextureManager::getInstance().loadTexture(textureId, path)),
-          cellWidth(cellWidth), cellHeight(cellHeight),
-          columns(texture.getSize().x / cellWidth),
-          rows(texture.getSize().y / cellHeight),
-          regionX(regionX),
-          regionY(regionY),
-          regionWidth(regionWidth == -1 ? cellWidth : regionWidth),
-          regionHeight(regionHeight == -1 ? cellHeight : regionHeight)
-    {}
-                
-            sf::IntRect getFrame(int index, int cropLeft, int cropRight, int cropTop, int cropBottom);
+        // posizione dello sprite dentro la cella
+        int offsetX;
+        int offsetY;
 
-            AnimationClip createClip(std::initializer_list<int> frameIndices, float frameDuration, bool loop,
-                                    int cropLeft, int cropRight, int cropTop, int cropBottom);
+        // dimensione reale del personaggio
+        int spriteWidth;
+        int spriteHeight;
+
+
+    public:
+
+        SpriteSheet(
+            const std::string& textureId,
+            const std::string& path,
+
+            int cellWidth,
+            int cellHeight,
+
+            int offsetX,
+            int offsetY,
+
+            int spriteWidth,
+            int spriteHeight
+        );
+
+
+        sf::IntRect getFrame(int index);
+        AnimationClip createClip(
+            std::initializer_list<int> frameIndices,
+            float frameDuration,
+            bool loop
+        );
     };
 }

@@ -40,21 +40,24 @@ public:
 
         // Add character controller
         auto& characterController = player->addComponent<GE::CharacterController>(
-            100.0f, // speed
+            75.0f, // speed
             35.0f, // width of the collision box
             100.0f  // height of the collision box
         );
         //get the character controller to print debug info
-        player->getComponentOfType<GE::CharacterController>().setDebugPrint(true);
+        player->getComponentOfType<GE::CharacterController>().setDebugPrint(false);
         //set this variable to true to enable Y movement with W and S keys
         player->getComponentOfType<GE::CharacterController>().setYMovementEnabled(true);
 
         // Create sprite sheet and animator
-        playerSpriteSheetWalk = new GE::SpriteSheet("player_walk", "assets/Walk_2.png", 
+        playerSpriteSheetWalk = new GE::SpriteSheet("player_walk", "assets/Walk_3.png", 
             162, 162, //dimensione originale di una singola cella
-             65, 38, //punto iniziale dello sprite
+             55, 38, //punto iniziale dello sprite
              120, 140 ); //dimensione dello sprite
-        playerSpriteSheetAttack = new GE::SpriteSheet("player_attack", "assets/Attack.png", 162, 162);
+        playerSpriteSheetAttack = new GE::SpriteSheet("player_attack", "assets/Attack.png", 
+            162, 162
+            , 55, 38, //punto iniziale dello sprite
+             120, 140 ); //dimensione dello sprite);
         playerSpriteSheetIdle = new GE::SpriteSheet("player_idle", "assets/Idle.png", 
             162, 162
             , 55, 38, //punto iniziale dello sprite
@@ -65,12 +68,8 @@ public:
             "walk",
             playerSpriteSheetWalk->createClip(
                 {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}, // Frame indices for walking animation, till 25
-                0.05f, // Frame duration
-                true,
-                0,
-                0,
-                0,
-                0
+                0.10f, // Frame duration
+                true
             )
         );
 
@@ -79,11 +78,7 @@ public:
             playerSpriteSheetIdle->createClip(
                 {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, // Frame indices for idle animation, till 11
                 0.10f, // Frame duration
-                true, 
-                0,
-                0,
-                0,
-                0
+                true
                    // Loop the animation
             )
         );
@@ -91,13 +86,9 @@ public:
         playerAnimator.addAnimation(
             "attack",
             playerSpriteSheetAttack->createClip(
-                {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}, // Frame indices for attack animation, till 14
+                {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, // Frame indices for attack animation, till 14
                 0.10f, // Frame duration
-                false, 
-                10,
-                10,
-                10,
-                10
+                true
                   // Do not loop the animation
             )
         );
