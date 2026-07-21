@@ -27,29 +27,34 @@ namespace GE
             return;
         }
 
-
         currentAnimation = name;
-        currentFrame = 0;
-        elapsedTime = 0;
-
+        elapsedTime = 0.f;
 
         auto& animation = it->second;
 
-        spriteRenderer.setTexture(
-            *animation.texture
-        );
+        switch(animation.playbackMode)
+        {
+            case PlaybackMode::Forward:
+            case PlaybackMode::PingPong:
+                currentFrame = 0;
+                direction = 1;
+                break;
 
+            case PlaybackMode::Reverse:
+                currentFrame = animation.frames.size() - 1;
+                direction = -1;
+                break;
+        }
 
-        spriteRenderer.setTextureRect(
-            animation.frames[0]
-        );
+        spriteRenderer.setTexture(*animation.texture);
+        spriteRenderer.setTextureRect(animation.frames[currentFrame]);
     }
 
     void Animator::update(float deltaTime)
     {
         //print the state of the animator
         //std::cout << "Current Animation: " << currentAnimation << ", Current Frame: "<< currentFrame << ", Elapsed Time: " << elapsedTime << std::endl;
-         for(auto& transition : transitions)
+        for(auto& transition : transitions)
         {
             if(transition.fromAnimation == currentAnimation)
             {
@@ -59,7 +64,7 @@ namespace GE
                     break;
                 }
             }
-        }
+        }   
 
         if(currentAnimation.empty())
             return;
@@ -76,17 +81,47 @@ namespace GE
 
         elapsedTime = 0.0f;
 
-        currentFrame++;
+        currentFrame+= direction;
 
-        if(currentFrame >= animation.frames.size())
+        /////////////////////////////////////////
+        //FORWARD PLAYBACK MODE
+        if(animation.playbackMode == PlaybackMode::Forward)
         {
-            if(animation.loop)
+            if(currentFrame >= static_cast<int>(animation.frames.size()))
             {
-                currentFrame = 0;
+                if(animation.loop)
+                    currentFrame = 0;
+                else
+                    currentFrame = static_cast<int>(animation.frames.size()) - 1;
             }
-            else
+        }
+
+        /////////////////////////////////////////
+        //REVERSE PLAYBACK MODE
+        else if(animation.playbackMode == PlaybackMode::Reverse)
+        {
+            if(currentFrame < 0)
             {
-                currentFrame = animation.frames.size() - 1;
+                if(animation.loop)
+                    currentFrame = static_cast<int>(animation.frames.size()) - 1;
+                else
+                    currentFrame = 0;
+            }
+        }
+
+        /////////////////////////////////////////
+        //PINGPONG PLAYBACK MODE
+        else if(animation.playbackMode == PlaybackMode::PingPong)
+        {
+            if(currentFrame >= static_cast<int>(animation.frames.size()))
+            {
+                direction = -1;
+                currentFrame = static_cast<int>(animation.frames.size()) - 2; // Go back to the second last frame
+            }
+            else if(currentFrame < 0)
+            {
+                direction = 1;
+                currentFrame = 1; // Go forward to the second frame
             }
         }
 
@@ -115,8 +150,15 @@ namespace GE
             1.0f
         );
     }
-}
 
-//init frame counter
-int GE::Animator::frameCounter = 0;
+    const std::string& Animator::getCurrentAnimation() const
+    {
+        return currentAnimation;
+    }
+
+    int Animator::getCurrentFrame() const
+    {
+        return currentFrame;
+    }
+}
 

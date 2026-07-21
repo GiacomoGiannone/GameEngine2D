@@ -33,11 +33,7 @@ public:
         player->getTransform().setPosition(250.0f, 180.0f);
 
         // Add sprite renderer to player FIRST (needed by Animator)
-        auto& spriteRenderer = player->addComponent<GE::SpriteRenderer>(
-            "player_texture",
-            "assets/player.png",
-            player->getTransform()
-        );
+        auto& spriteRenderer = player->addComponent<GE::SpriteRenderer>("player_texture", "assets/player.png", player->getTransform());
 
         // Add character controller
         auto& characterController = player->addComponent<GE::CharacterController>(
@@ -73,7 +69,8 @@ public:
             playerSpriteSheetWalk->createClip(
                 {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}, // Frame indices for walking animation, till 25
                 0.05f, // Frame duration
-                true
+                true, // Do not loop the animation
+                GE::PlaybackMode::Forward
             )
         );
 
@@ -81,19 +78,19 @@ public:
             "idle",
             playerSpriteSheetIdle->createClip(
                 {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, // Frame indices for idle animation, till 11
-                0.10f, // Frame duration
-                true
-                   // Loop the animation
+                0.05f, // Frame duration
+                true, // Do not loop the animation
+                GE::PlaybackMode::Forward
             )
         );
 
         playerAnimator.addAnimation(
             "attack",
             playerSpriteSheetAttack->createClip(
-                {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, // Frame indices for attack animation, till 14
-                0.10f, // Frame duration
-                true
-                  // Do not loop the animation
+                {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18}, // Frame indices for attack animation, till 14
+                0.05f, // Frame duration
+                true, // Do not loop the animation
+                GE::PlaybackMode::Forward
             )
         );
 
@@ -118,6 +115,33 @@ public:
             "attack",
             [&characterController]() {
                 return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Left);
+            }
+        );
+
+        playerAnimator.addTransition(
+            "idle",
+            "attack",
+            [&characterController]() {
+                return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Left);
+            }
+        );
+
+        playerAnimator.addTransition(
+            "attack",
+            "idle",
+            [&playerAnimator]() {
+                return playerAnimator.getCurrentAnimation() == "attack" && 
+                playerAnimator.getCurrentFrame() == playerAnimator.getAnimation("attack").frames.size() - 1;
+            }
+        );
+
+        playerAnimator.addTransition(
+            "attack",
+            "walk",
+            [&playerAnimator, &characterController]() {
+                return playerAnimator.getCurrentAnimation() == "attack" && 
+                playerAnimator.getCurrentFrame() == playerAnimator.getAnimation("attack").frames.size() - 1 &&
+                characterController.isMoving();
             }
         );
 
@@ -160,7 +184,7 @@ public:
         rectangleObject4->setRenderOrder(100); // Set a higher render order for this object
         rectangleObject3->setRenderOrder(100); // Set a lower render order for this object
         rectangleObject2->setRenderOrder(100); // Set a lower render order for this object
-        player->setRenderOrder(100); // Set a lower render order for this object
+        player->setRenderOrder(99); // Set a lower render order for this object
 
         addGameObject(rectangleObject4);
 

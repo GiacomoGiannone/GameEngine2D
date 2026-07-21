@@ -13,6 +13,13 @@ namespace GE
     class SpriteRenderer;
     class Renderer;
 
+    enum class PlaybackMode
+    {
+        Forward,
+        Reverse,
+        PingPong
+    };
+
     struct AnimationClip
     {
         sf::Texture* texture;
@@ -20,6 +27,8 @@ namespace GE
 
         float frameDuration;
         bool loop;
+
+        PlaybackMode playbackMode = PlaybackMode::Forward;
     };
 
     struct AnimationState
@@ -35,7 +44,6 @@ namespace GE
         std::function<bool()> condition;
     };
 
-
     class Animator : public Component
     {
         private:
@@ -43,9 +51,9 @@ namespace GE
             SpriteRenderer& spriteRenderer;
             std::vector<AnimationTransition> transitions;
             std::string currentAnimation;
-            size_t currentFrame = 0;
+            int currentFrame = 0;
             float elapsedTime = 0.0f;
-            static int frameCounter;
+            int direction;
         public:
             Animator(SpriteRenderer& spriteRenderer);
             void addAnimation(const std::string& name, const AnimationClip& animation);
@@ -54,6 +62,9 @@ namespace GE
             void render(Renderer& renderer) override;
             void addTransition(const std::string& fromAnimation, const std::string& toAnimation, std::function<bool()> condition);
             void setFlipped(bool flipped);
+            const std::string& getCurrentAnimation() const;
+            int getCurrentFrame() const;
+            AnimationClip& getAnimation(const std::string& name) { return animations.at(name); }
     };
 
 }
