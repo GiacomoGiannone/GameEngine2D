@@ -35,18 +35,6 @@ namespace GE
 
         auto& animation = it->second;
 
-        frameCounter++;
-        if(frameCounter % 180 == 0)
-        {
-            std::cout << "Playing animation: " << name << std::endl;
-            std::cout << "Texture size: "
-                << animation.texture->getSize().x
-                << "x"
-                << animation.texture->getSize().y
-                << std::endl;
-        }
-
-
         spriteRenderer.setTexture(
             *animation.texture
         );
@@ -107,17 +95,6 @@ namespace GE
         );
 
         auto rect = animation.frames[currentFrame];
-
-        std::cout
-            << "Frame "
-            << currentFrame
-            << " rect: "
-            << rect.position.x << ", "
-            << rect.position.y
-            << " size "
-            << rect.size.x << "x"
-            << rect.size.y
-            << std::endl;
     }
 
     void Animator::render(Renderer& renderer)

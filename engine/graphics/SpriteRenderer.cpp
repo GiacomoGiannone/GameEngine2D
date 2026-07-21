@@ -36,13 +36,6 @@ namespace GE
     {
         // No update logic needed for the sprite renderer.
         auto r = sprite->getTextureRect();
-
-    std::cout
-        << r.position.x << " "
-        << r.position.y << " "
-        << r.size.x << " "
-        << r.size.y
-        << std::endl;
     }
 
     void SpriteRenderer::render(Renderer& renderer)

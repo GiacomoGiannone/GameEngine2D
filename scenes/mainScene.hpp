@@ -11,6 +11,7 @@
 #include "core/CollisionBox.hpp"
 #include "graphics/SpriteRenderer.hpp"
 #include "graphics/SpriteSheet.hpp"
+#include "Core/Input.hpp"
 
 class MainScene : public GE::Scene
 {
@@ -63,7 +64,7 @@ public:
             , 21, 11, //punto iniziale dello sprite
              120, 140 ); //dimensione dello sprite
         
-            
+
         auto& playerAnimator = player->addComponent<GE::Animator>(spriteRenderer);
         characterController.setAnimator(&playerAnimator);
 
@@ -71,7 +72,7 @@ public:
             "walk",
             playerSpriteSheetWalk->createClip(
                 {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}, // Frame indices for walking animation, till 25
-                0.10f, // Frame duration
+                0.05f, // Frame duration
                 true
             )
         );
@@ -109,6 +110,14 @@ public:
             "idle",
             [&characterController]() {
                 return !characterController.isMoving();
+            }
+        );
+
+        playerAnimator.addTransition(
+            "walk",
+            "attack",
+            [&characterController]() {
+                return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Left);
             }
         );
 

@@ -1,6 +1,7 @@
 #include "Engine.hpp"
 #include "graphics/Renderer.hpp"
 #include "Scene.hpp"
+#include "Input.hpp"
 
 namespace GE
 {
@@ -30,6 +31,7 @@ namespace GE
         if (activeScene != nullptr)
         {
             activeScene->update(deltaTime);
+            Input::update(); // Update input state after processing events
         }
     }
 
