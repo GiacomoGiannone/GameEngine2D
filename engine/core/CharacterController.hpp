@@ -40,6 +40,7 @@ namespace GE
         //otherwise the character can only move left and right with the A and D keys
         bool Y_movement_enabled = false;
         Animator* animator = nullptr;
+        int facingDirection = 1; // 1 for right, -1 for left
 
         static bool getCollisionBox(const GE::GameObject* gameObject, const GE::CollisionBox*& outBox);
 
@@ -70,6 +71,7 @@ namespace GE
         bool isYMovementEnabled() const { return Y_movement_enabled; }
         bool isMoving() const { return std::abs(velocity.x) > 0.1f || std::abs(velocity.y) > 0.1f; }
         void setAnimator(Animator* animator) { this->animator = animator; }
+        int getFacingDirection() const { return facingDirection; } // 1 for right, -1 for left
 
         virtual ~CharacterController() = default;
 

@@ -20,6 +20,12 @@ namespace GE
         PingPong
     };
 
+    struct AnimationEvent
+    {
+        std::size_t frame;
+        std::function<void()> callback;
+    };
+
     struct AnimationClip
     {
         sf::Texture* texture;
@@ -29,6 +35,8 @@ namespace GE
         bool loop;
 
         PlaybackMode playbackMode = PlaybackMode::Forward;
+
+        std::vector<AnimationEvent> events;
     };
 
     struct AnimationState

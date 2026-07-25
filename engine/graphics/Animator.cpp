@@ -84,6 +84,16 @@ namespace GE
         currentFrame+= direction;
 
         /////////////////////////////////////////
+        //CHECK FOR ANIMATION EVENTS
+        for(auto& event : animation.events)
+        {
+            if(event.frame == static_cast<std::size_t>(currentFrame))
+            {
+                event.callback();
+            }
+        }
+
+        /////////////////////////////////////////
         //FORWARD PLAYBACK MODE
         if(animation.playbackMode == PlaybackMode::Forward)
         {

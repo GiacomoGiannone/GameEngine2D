@@ -1,0 +1,34 @@
+#pragma once
+
+#include "Component.hpp"
+#include "SFML/Graphics.hpp"
+
+namespace GE
+{
+    class Attack: public Component
+    {
+        private:
+            float damage;
+            float range;
+            float cooldown;
+            //collision box for the attack, will be spawned in front of the owner game object
+            sf::RectangleShape collisionBox;
+            bool debugPrint{false};
+            bool isActive{false};
+            float activeDuration{0.50f};
+            float activeTimer{0.0f};
+            //each attack should have an ID so that when we check for collisions we can identify which attack is which
+            int attackID;
+        public:
+            Attack(float damage, float cooldown, sf::Vector2f collisionBox, int id) : damage(damage), cooldown(cooldown), collisionBox(collisionBox), attackID(id) {}
+            float getDamage() const { return damage; }
+            float getRange() const { return range; }
+            float getCooldown() const { return cooldown; }
+            int getAttackID() const { return attackID; }
+
+            void update(float deltaTime) override;
+            void render(Renderer& renderer) override;
+            void setDebugPrint(bool value) { debugPrint = value; }
+            void execute(int direction = 1); //direction: 1 for right, -1 for left
+        };
+}

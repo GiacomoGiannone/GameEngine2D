@@ -197,12 +197,14 @@ namespace GE
         {
             velocity.x -= speed;
             if (animator) animator->setFlipped(true);
+            facingDirection = -1; // Facing left
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
         {
             velocity.x += speed;
             if (animator) animator->setFlipped(false);
+            facingDirection = 1; // Facing right
         }
 
         if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) velocity.y -= speed;
