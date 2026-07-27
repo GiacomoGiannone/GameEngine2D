@@ -19,6 +19,9 @@ namespace GE
             // Internal state to track mouse button presses.
             static bool previousLeft;
             static bool currentLeft;
+
+            static bool previousRight;
+            static bool currentRight;
         public:
             // Check if a specific key is currently pressed.
             static bool isKeyPressed(int key);

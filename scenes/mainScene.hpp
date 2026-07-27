@@ -21,12 +21,15 @@ private:
     GE::GameObject* rectangleObject2;
     GE::GameObject* rectangleObject3;
     GE::GameObject* rectangleObject4;
-    GE::SpriteSheet* playerSpriteSheet;
+    
     GE::SpriteSheet* playerSpriteSheetIdle;
     GE::SpriteSheet* playerSpriteSheetWalk;
     GE::SpriteSheet* playerSpriteSheetAttack;
+    GE::SpriteSheet* playerRunSpriteSheet;
+    GE::SpriteSheet* playerAttack2SpriteSheet;
+    GE::SpriteSheet* playerRollSpriteSheet;
 
-public:
+    public:
     MainScene() : GE::Scene("MainScene")
     {
         // Player-controlled rectangle (camera will follow this).
@@ -47,7 +50,11 @@ public:
         //set this variable to true to enable Y movement with W and S keys
         player->getComponentOfType<GE::CharacterController>().setYMovementEnabled(true);
 
-        // Create sprite sheet and animator
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
+                                /*LOAD SPRITE SHEETS*/
         playerSpriteSheetWalk = new GE::SpriteSheet("player_walk", "assets/Walk_3.png", 
             162, 162, //dimensione originale di una singola cella
              0, 0, //punto iniziale dello sprite
@@ -60,14 +67,28 @@ public:
             162, 162
             , 0, 0, //punto iniziale dello sprite
              162, 162 ); //dimensione dello sprite
-        
+        playerRunSpriteSheet = new GE::SpriteSheet("player_run", "assets/Run.png", 
+            162, 162
+            , 0, 0, //punto iniziale dello sprite
+             162, 162 ); //dimensione dello sprite
+        playerAttack2SpriteSheet = new GE::SpriteSheet("player_attack2", "assets/Attack2.png", 
+            162, 162
+            , 0, 0, //punto iniziale dello sprite
+             162, 162 ); //dimensione dello sprite
+        playerRollSpriteSheet = new GE::SpriteSheet("player_roll", "assets/Roll.png", 
+            162, 162
+            , 0, 0, //punto iniziale dello sprite
+             162, 162 ); //dimensione dello sprite
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////
 
         auto& playerAnimator = player->addComponent<GE::Animator>(spriteRenderer);
         characterController.setAnimator(&playerAnimator);
 
         //add attack component to player
-        sf::Vector2f attackCollisionBox(50.0f, 20.0f); //width, height
-        player->addComponent<GE::Attack>(10.0f, 1.0f, attackCollisionBox, 1); //damage, cooldown, collision box, id
+        sf::Vector2f LightattackCollisionBox(80.0f, 20.0f); //width, height
+        player->addComponent<GE::Attack>(10.0f, 1.0f, LightattackCollisionBox, 1); //damage, cooldown, collision box, id
         player->getComponentOfType<GE::Attack>().setDebugPrint(true); //set to true to see the attack collision box
 
         playerAnimator.addAnimation(
@@ -97,6 +118,25 @@ public:
             GE::PlaybackMode::Forward
         );
 
+        auto rollClip = playerRollSpriteSheet->createClip(
+            {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+                 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 
+                 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+                60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71}, // Frame indices for roll animation till 71
+            0.03f, // Frame duration
+            false, // Do not loop the animation
+            GE::PlaybackMode::Forward
+        );
+
+        auto secondAttackClip = playerAttack2SpriteSheet->createClip(
+            {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
+            18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 
+            33, 34, 35, 36, 37, 38, 39, 40, 41}, // Frame indices for second attack animation till 41
+            0.05f, // Frame duration
+            false, // Do not loop the animation
+            GE::PlaybackMode::Forward
+        );
+
         attackClip.events.push_back({8, 
             [&]() 
             {
@@ -107,6 +147,16 @@ public:
         playerAnimator.addAnimation(
             "attack",
             attackClip
+        );
+
+        playerAnimator.addAnimation(
+            "roll",
+            rollClip
+        );
+
+        playerAnimator.addAnimation(
+            "attack2",
+            secondAttackClip
         );
 
         playerAnimator.addTransition(
@@ -156,6 +206,77 @@ public:
             [&playerAnimator, &characterController]() {
                 return playerAnimator.getCurrentAnimation() == "attack" && 
                 playerAnimator.getCurrentFrame() == playerAnimator.getAnimation("attack").frames.size() - 1 &&
+                characterController.isMoving();
+            }
+        );
+
+        playerAnimator.addTransition(
+            "walk",
+            "roll",
+            [&characterController]() {
+                return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space);
+            }
+        );
+
+        playerAnimator.addTransition(
+            "idle",
+            "roll",
+            [&characterController]() {
+                return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space);
+            }
+        );
+
+        playerAnimator.addTransition(
+            "roll",
+            "idle",
+            [&playerAnimator]() {
+                return playerAnimator.getCurrentAnimation() == "roll" && 
+                playerAnimator.getCurrentFrame() == playerAnimator.getAnimation("roll").frames.size() - 1;
+            }
+        );
+
+        playerAnimator.addTransition(
+            "roll",
+            "walk",
+            [&playerAnimator, &characterController]() {
+                return playerAnimator.getCurrentAnimation() == "roll" && 
+                playerAnimator.getCurrentFrame() == playerAnimator.getAnimation("roll").frames.size() - 1 &&
+                characterController.isMoving();
+            }
+        );
+
+        // if press right mouse button, play second attack animation
+        playerAnimator.addTransition(
+            "idle",
+            "attack2",
+            [&characterController]() {
+                return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Right);
+            }
+        );
+
+        playerAnimator.addTransition(
+            "walk",
+            "attack2",
+            [&characterController]() {
+                return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Right);
+            }
+        );
+
+        playerAnimator.addTransition(
+            "attack2",
+            "idle",
+            [&playerAnimator]() {
+                return playerAnimator.getCurrentAnimation() == "attack2" && 
+                playerAnimator.getCurrentFrame() == playerAnimator.getAnimation("attack2").frames.size() - 1;
+            }
+        );
+
+        playerAnimator.addTransition(
+            "attack2",
+            "walk",
+            [&playerAnimator, &characterController]() {
+                return playerAnimator.getCurrentAnimation() == "attack2" && 
+                playerAnimator.getCurrentFrame() == playerAnimator.getAnimation("attack2").frames.size() - 1 &&
                 characterController.isMoving();
             }
         );
