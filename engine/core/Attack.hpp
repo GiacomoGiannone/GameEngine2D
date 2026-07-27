@@ -7,7 +7,7 @@ namespace GE
 {
     class Attack: public Component
     {
-        private:
+        protected:
             float damage;
             float range;
             float cooldown;

@@ -13,6 +13,8 @@
 #include "graphics/SpriteSheet.hpp"
 #include "Core/Input.hpp"
 #include "Core/Attack.hpp"
+#include "Core/LightAttack.hpp"
+#include "Core/HeavyAttack.hpp"
 
 class MainScene : public GE::Scene
 {
@@ -86,10 +88,14 @@ private:
         auto& playerAnimator = player->addComponent<GE::Animator>(spriteRenderer);
         characterController.setAnimator(&playerAnimator);
 
-        //add attack component to player
-        sf::Vector2f LightattackCollisionBox(80.0f, 20.0f); //width, height
-        player->addComponent<GE::Attack>(10.0f, 1.0f, LightattackCollisionBox, 1); //damage, cooldown, collision box, id
-        player->getComponentOfType<GE::Attack>().setDebugPrint(true); //set to true to see the attack collision box
+        //add attack components to player
+        sf::Vector2f lightAttackCollisionBox(80.0f, 20.0f); //width, height
+        player->addComponent<GE::LightAttack>(10.0f, 1.0f, lightAttackCollisionBox, 1); //damage, cooldown, collision box, id
+        player->getComponentOfType<GE::LightAttack>().setDebugPrint(true); //set to true to see the attack collision box
+
+        sf::Vector2f heavyAttackCollisionBox(70.0f, 100.0f); //width, height
+        player->addComponent<GE::HeavyAttack>(25.0f, 2.0f, heavyAttackCollisionBox, 2); //damage, cooldown, collision box, id
+        player->getComponentOfType<GE::HeavyAttack>().setDebugPrint(true);
 
         playerAnimator.addAnimation(
             "walk",
@@ -141,7 +147,7 @@ private:
             [&]() 
             {
             // Execute attack logic when the last frame of the attack animation is reached
-            player->getComponentOfType<GE::Attack>().execute(characterController.getFacingDirection());
+            player->getComponentOfType<GE::LightAttack>().execute(characterController.getFacingDirection());
             }});
 
         playerAnimator.addAnimation(
@@ -153,6 +159,13 @@ private:
             "roll",
             rollClip
         );
+
+        secondAttackClip.events.push_back({10, 
+            [&]() 
+            {
+            // Execute heavy attack logic
+            player->getComponentOfType<GE::HeavyAttack>().execute(characterController.getFacingDirection());
+            }});
 
         playerAnimator.addAnimation(
             "attack2",
