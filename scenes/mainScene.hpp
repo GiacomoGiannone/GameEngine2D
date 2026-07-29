@@ -15,6 +15,7 @@
 #include "Core/Attack.hpp"
 #include "Core/LightAttack.hpp"
 #include "Core/HeavyAttack.hpp"
+#include "Core/Hittable.hpp"
 
 class MainScene : public GE::Scene
 {
@@ -322,6 +323,7 @@ private:
         );
         //add collision box to rectangleObject2
         rectangleObject2->addComponent<GE::CollisionBox>(200.0f, 100.0f);
+        rectangleObject2->addComponent<GE::Hittable>(100.0f);
         addGameObject(rectangleObject2);
 
         rectangleObject3 = new GE::GameObject();
@@ -334,6 +336,7 @@ private:
         );
         //add collision box to rectangleObject3
         rectangleObject3->addComponent<GE::CollisionBox>(150.0f, 250.0f);
+        rectangleObject3->addComponent<GE::Hittable>(100.0f);
         addGameObject(rectangleObject3);
 
         rectangleObject4 = new GE::GameObject();
@@ -346,6 +349,8 @@ private:
         );
         //add collision box to rectangleObject4
         rectangleObject4->addComponent<GE::CollisionBox>(120.0f, 120.0f);
+        rectangleObject4->addComponent<GE::Hittable>(100.0f);
+        
         rectangleObject4->setRenderOrder(100); // Set a higher render order for this object
         rectangleObject3->setRenderOrder(100); // Set a lower render order for this object
         rectangleObject2->setRenderOrder(100); // Set a lower render order for this object

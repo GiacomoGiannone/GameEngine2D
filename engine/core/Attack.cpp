@@ -2,6 +2,10 @@
 #include "GameObject.hpp"
 #include "Graphics/Renderer.hpp"
 #include <iostream>
+#include "Scene.hpp"
+#include "Engine.hpp"
+#include "Hittable.hpp"
+#include "CollisionBox.hpp"
 
 namespace GE
 {
@@ -47,7 +51,63 @@ namespace GE
         activeTimer = activeDuration;
 
         std::cout << "Attack executed! Damage: " << damage << ", ID: " << attackID << std::endl;
-        
+
+        //get all objects in the scene and check for collisions with the attack collision box
+        //if a collision is detected, apply damage to the target and destroy the attack collision box
+
+        //1. Get the current scene
+        Scene* currentScene = Engine::getInstance()->getCurrentScene();
+        if (currentScene == nullptr)
+        {
+            std::cerr << "Error: No current scene found." << std::endl;
+            return;
+        }
+
+        //2. Get all game objects in the scene
+        const std::vector<GameObject*>& gameObjects = currentScene->getGameObjects();
+
+        //3. Check for collisions with objects that have the component Hittable
+        for (const auto& gameObject : gameObjects)
+        {
+            if (gameObject == owner) continue; // Skip the owner
+
+            if (gameObject->hasComponentOfType<Hittable>())
+            {
+                Hittable& hittable = gameObject->getComponentOfType<Hittable>();
+
+                // Check if the hittable object has a CollisionBox component
+                if (gameObject->hasComponentOfType<CollisionBox>())
+                {
+                    CollisionBox& hittableCollisionBox = gameObject->getComponentOfType<CollisionBox>();
+
+                    // Check for collision between the two rectangles
+                    // Use sf::FloatRect for the attack box (derived from sf::RectangleShape)
+                    sf::FloatRect attackBounds = collisionBox.getGlobalBounds();
+
+                    // Reconstruct a FloatRect from the CollisionBox's position and size
+                    // The CollisionBox uses sf::RectangleShape internally but doesn't expose getGlobalBounds directly
+                    // We need to get the GameObject's position and use the CollisionBox's width/height
+                    float targetX = gameObject->getX();
+                    float targetY = gameObject->getY();
+                    float targetW = hittableCollisionBox.getWidth();
+                    float targetH = hittableCollisionBox.getHeight();
+
+                    // Build the target's bounding rect centered on its position
+                    sf::FloatRect targetBounds(
+                        sf::Vector2f(targetX - targetW / 2.0f, targetY - targetH / 2.0f),
+                        sf::Vector2f(targetW, targetH)
+                    );
+
+                    // Use findIntersection for SFML 3 compatibility
+                    if (attackBounds.findIntersection(targetBounds))
+                    {
+                        // Apply damage to the target
+                        hittable.takeDamage(damage);
+                        std::cout << "Hit object! Damage applied: " << damage << std::endl;
+                    }
+                }
+            }
+        }
     }
 
     void Attack::render(Renderer& renderer)

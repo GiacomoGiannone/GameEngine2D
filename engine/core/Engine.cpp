@@ -5,10 +5,18 @@
 
 namespace GE
 {
+    Engine* Engine::instance = nullptr;
+
     Engine::Engine(int width, int height, const std::string& title)
     {
         renderer = new Renderer(width, height, title);
         activeScene = nullptr;
+        instance = this;
+    }
+
+    Engine* Engine::getInstance()
+    {
+        return instance;
     }
 
     void Engine::setScene(Scene* scene)
