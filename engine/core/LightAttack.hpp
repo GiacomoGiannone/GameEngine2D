@@ -7,7 +7,7 @@ namespace GE
     class LightAttack : public Attack
     {
     public:
-        LightAttack(float damage, float cooldown, sf::Vector2f collisionBox, int id)
-            : Attack(damage, cooldown, collisionBox, id) {}
+        LightAttack(float damage, float cooldown, sf::Vector2f collisionBox)
+            : Attack(damage, cooldown, collisionBox) {}
     };
 }

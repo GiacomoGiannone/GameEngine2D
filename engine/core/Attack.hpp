@@ -20,7 +20,7 @@ namespace GE
             //each attack should have an ID so that when we check for collisions we can identify which attack is which
             int attackID;
         public:
-            Attack(float damage, float cooldown, sf::Vector2f collisionBox, int id) : damage(damage), cooldown(cooldown), collisionBox(collisionBox), attackID(id) {}
+            Attack(float damage, float cooldown, sf::Vector2f collisionBox) : damage(damage), cooldown(cooldown), collisionBox(collisionBox) {}
             float getDamage() const { return damage; }
             float getRange() const { return range; }
             float getCooldown() const { return cooldown; }

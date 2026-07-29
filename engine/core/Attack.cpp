@@ -10,6 +10,9 @@ namespace GE
         //spawn a collision box in front of the owner game object, with the specified range and damage
         //if debugPrint is true, draw the collision box
 
+        //get a random number to simulate the ID to prevent multiple attacks from the same attack component from colliding with the same target
+        attackID = rand() % 100000;
+
         //first get the owner game object
         GameObject* owner = getOwner();
         if (owner == nullptr)
@@ -43,7 +46,7 @@ namespace GE
         isActive = true;
         activeTimer = activeDuration;
 
-        std::cout << "Attack executed! Damage: " << damage << ", Range: " << range << std::endl;
+        std::cout << "Attack executed! Damage: " << damage << ", ID: " << attackID << std::endl;
         
     }
 

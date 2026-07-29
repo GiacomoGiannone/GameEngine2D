@@ -90,11 +90,11 @@ private:
 
         //add attack components to player
         sf::Vector2f lightAttackCollisionBox(80.0f, 20.0f); //width, height
-        player->addComponent<GE::LightAttack>(10.0f, 1.0f, lightAttackCollisionBox, 1); //damage, cooldown, collision box, id
+        player->addComponent<GE::LightAttack>(10.0f, 1.0f, lightAttackCollisionBox); //damage, cooldown, collision box, id
         player->getComponentOfType<GE::LightAttack>().setDebugPrint(true); //set to true to see the attack collision box
 
         sf::Vector2f heavyAttackCollisionBox(70.0f, 100.0f); //width, height
-        player->addComponent<GE::HeavyAttack>(25.0f, 2.0f, heavyAttackCollisionBox, 2); //damage, cooldown, collision box, id
+        player->addComponent<GE::HeavyAttack>(25.0f, 2.0f, heavyAttackCollisionBox); //damage, cooldown, collision box, id
         player->getComponentOfType<GE::HeavyAttack>().setDebugPrint(true);
 
         playerAnimator.addAnimation(

@@ -42,6 +42,7 @@ namespace GE
         const Transform& getTransform() const { return transform; }
         int getRenderOrder() const { return renderOrder; }
         void setRenderOrder(int order) { renderOrder = order; }
+        bool destroy();
 
         template<typename T, typename... Args>
         T& addComponent(Args&&... args)

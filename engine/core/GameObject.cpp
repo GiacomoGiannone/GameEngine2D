@@ -20,6 +20,13 @@ namespace GE
             component->render(renderer);
         }
     }
+
+    bool GameObject::destroy()
+    {
+        // Destroy all components
+        components.clear();
+        return true;
+    }
 }
 
 
