@@ -12,19 +12,20 @@
 namespace GE
 {
     CharacterController::CharacterController(float speed, float width, float height)
-        : speed(speed), width(width), height(height), colliderShape(ColliderShape::Rectangle), velocity(0.0f, 0.0f), gravity(900.0f), jumpVelocity(-350.0f), onGround(false), worldObjects(nullptr)
+        : speed(speed), width(width), height(height), colliderShape(ColliderShape::Rectangle), velocity(0.0f, 0.0f), gravity(900.0f), 
+        jumpVelocity(-350.0f), onGround(false), worldObjects(nullptr), originalHeight(height)
     {
         setRectangleShape(width, height);
     }
 
     CharacterController::CharacterController(float speed, float radius)
-        : speed(speed), width(radius * 2.0f), height(radius * 2.0f), colliderShape(ColliderShape::Circle), velocity(0.0f, 0.0f), gravity(900.0f), jumpVelocity(-350.0f), onGround(false), worldObjects(nullptr)
+        : speed(speed), width(radius * 2.0f), height(radius * 2.0f), colliderShape(ColliderShape::Circle), velocity(0.0f, 0.0f), gravity(900.0f), jumpVelocity(-350.0f), onGround(false), worldObjects(nullptr), originalHeight(radius * 2.0f)
     {
         setCircleShape(radius);
     }
 
     CharacterController::CharacterController(float speed, const std::vector<sf::Vector2f>& points)
-        : speed(speed), width(0.0f), height(0.0f), colliderShape(ColliderShape::Convex), velocity(0.0f, 0.0f), gravity(900.0f), jumpVelocity(-350.0f), onGround(false), worldObjects(nullptr)
+        : speed(speed), width(0.0f), height(0.0f), colliderShape(ColliderShape::Convex), velocity(0.0f, 0.0f), gravity(900.0f), jumpVelocity(-350.0f), onGround(false), worldObjects(nullptr), originalHeight(0.0f)
     {
         setConvexShape(points);
     }
@@ -337,5 +338,12 @@ namespace GE
     void CharacterController::setDebugPrint(bool value)
     {
         debugPrint = value;
+    }
+
+    void CharacterController::roll()
+    {
+        //reduce the collision box height to half of its original height
+        height = originalHeight * 0.5f;
+        collisionBox.setSize({width, height});
     }
 }

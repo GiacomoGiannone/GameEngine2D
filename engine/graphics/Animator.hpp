@@ -22,7 +22,8 @@ namespace GE
 
     struct AnimationEvent
     {
-        std::size_t frame;
+        std::size_t startFrame;
+        std::size_t endFrame;
         std::function<void()> callback;
     };
 

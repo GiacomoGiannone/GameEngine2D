@@ -29,6 +29,7 @@ namespace GE
     private:
         float speed;
         float width, height;
+        float originalHeight; // Store the original height for resetting after roll
         ColliderShape colliderShape;
         sf::Vector2f velocity;
         float gravity;
@@ -72,7 +73,9 @@ namespace GE
         bool isMoving() const { return std::abs(velocity.x) > 0.1f || std::abs(velocity.y) > 0.1f; }
         void setAnimator(Animator* animator) { this->animator = animator; }
         int getFacingDirection() const { return facingDirection; } // 1 for right, -1 for left
-
+        void roll(); //this function reduces the hitbox of the character controller to half of its height 
+        void resetHitbox() { setRectangleShape(width, originalHeight); } //this function resets the hitbox of the character controller to its original height
+        
         virtual ~CharacterController() = default;
 
         void setWorldObjects(const std::vector<GE::GameObject*>* gameObjects);

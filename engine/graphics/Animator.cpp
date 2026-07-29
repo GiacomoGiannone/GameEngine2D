@@ -87,7 +87,7 @@ namespace GE
         //CHECK FOR ANIMATION EVENTS
         for(auto& event : animation.events)
         {
-            if(event.frame == static_cast<std::size_t>(currentFrame))
+            if(event.startFrame <= static_cast<std::size_t>(currentFrame) && event.endFrame >= static_cast<std::size_t>(currentFrame))
             {
                 event.callback();
             }

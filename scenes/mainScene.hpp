@@ -48,7 +48,7 @@ private:
             70.0f  // height of the collision box
         );
         //get the character controller to print debug info
-        player->getComponentOfType<GE::CharacterController>().setDebugPrint(false);
+        player->getComponentOfType<GE::CharacterController>().setDebugPrint(true);
         //set this variable to true to enable Y movement with W and S keys
         player->getComponentOfType<GE::CharacterController>().setYMovementEnabled(true);
 
@@ -146,11 +146,31 @@ private:
             0.5f // Set movement multiplier to 0.5 for second attack animation
         );
 
-        attackClip.events.push_back({8, 
+        attackClip.events.push_back({8,8, 
             [&]() 
             {
             // Execute attack logic when the last frame of the attack animation is reached
             player->getComponentOfType<GE::LightAttack>().execute(characterController.getFacingDirection());
+            }});
+
+        rollClip.events.push_back({10,40, 
+            [&]() 
+            {
+            // Execute roll logic
+            characterController.roll();
+            }});
+
+        rollClip.events.push_back({41,41, //reset the hitbox of the character controller to its original height when the roll animation is finished
+            [&]() 
+            {
+            characterController.resetHitbox();
+            }});
+
+        secondAttackClip.events.push_back({16,16, 
+            [&]() 
+            {
+            // Execute heavy attack logic
+            player->getComponentOfType<GE::HeavyAttack>().execute(characterController.getFacingDirection());
             }});
 
         playerAnimator.addAnimation(
@@ -162,13 +182,6 @@ private:
             "roll",
             rollClip
         );
-
-        secondAttackClip.events.push_back({16, 
-            [&]() 
-            {
-            // Execute heavy attack logic
-            player->getComponentOfType<GE::HeavyAttack>().execute(characterController.getFacingDirection());
-            }});
 
         playerAnimator.addAnimation(
             "attack2",
