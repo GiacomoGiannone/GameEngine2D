@@ -25,6 +25,7 @@ namespace GE
         {
             throw std::runtime_error("Failed to create texture from image: " + id);
         }
+        texture->setSmooth(true);
         textures[id] = TextureEntry{std::move(texture), 1};
     }
 
@@ -48,7 +49,7 @@ namespace GE
             );
         }
 
-
+        texture->setSmooth(true); // Enable smoothing for better visual quality
         auto& ref = *texture;
 
         textures[id] = TextureEntry{std::move(texture), 1};
