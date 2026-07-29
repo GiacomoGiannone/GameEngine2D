@@ -47,6 +47,7 @@ namespace GE
 
 
         sf::IntRect getFrame(int index);
-        AnimationClip createClip(std::initializer_list<int> frameIndices, float frameDuration, bool loop, PlaybackMode playbackMode = PlaybackMode::Forward);
+        AnimationClip createClip(std::initializer_list<int> frameIndices, float frameDuration, bool loop, 
+            PlaybackMode playbackMode = PlaybackMode::Forward, float movementMultiplier = 1.0f);
     };
 }

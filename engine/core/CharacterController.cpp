@@ -192,23 +192,30 @@ namespace GE
         velocity.x = 0.0f;
         if (Y_movement_enabled) velocity.y = 0.0f;
 
+        //get movement multiplier from animator if available
+        float movementMultiplier = 1.0f;
+        if(animator)
+        {
+            movementMultiplier = animator->getMovementMultiplier();
+        }
+
         // --- GESTIONE INPUT ---
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
         {
-            velocity.x -= speed;
+            velocity.x -= speed * movementMultiplier;
             if (animator) animator->setFlipped(true);
             facingDirection = -1; // Facing left
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
         {
-            velocity.x += speed;
+            velocity.x += speed * movementMultiplier;
             if (animator) animator->setFlipped(false);
             facingDirection = 1; // Facing right
         }
 
-        if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) velocity.y -= speed;
-        if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) velocity.y += speed;
+        if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) velocity.y -= speed * movementMultiplier;
+        if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) velocity.y += speed * movementMultiplier;
 
         if (!Y_movement_enabled && onGround && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
         {

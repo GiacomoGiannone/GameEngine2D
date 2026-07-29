@@ -121,7 +121,8 @@ private:
             {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18}, // Frame indices for attack animation
             0.05f, // Frame duration
             false, // Do not loop the animation
-            GE::PlaybackMode::Forward
+            GE::PlaybackMode::Forward,
+            0.5f // Set movement multiplier to 0.5 for attack animation
         );
 
         auto rollClip = playerRollSpriteSheet->createClip(
@@ -131,7 +132,8 @@ private:
                 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71}, // Frame indices for roll animation till 71
             0.03f, // Frame duration
             false, // Do not loop the animation
-            GE::PlaybackMode::Forward
+            GE::PlaybackMode::Forward,
+            1.3f // Set movement multiplier to 1.3 for roll animation
         );
 
         auto secondAttackClip = playerAttack2SpriteSheet->createClip(
@@ -140,7 +142,8 @@ private:
             33, 34, 35, 36, 37, 38, 39, 40, 41}, // Frame indices for second attack animation till 41
             0.05f, // Frame duration
             false, // Do not loop the animation
-            GE::PlaybackMode::Forward
+            GE::PlaybackMode::Forward,
+            0.5f // Set movement multiplier to 0.5 for second attack animation
         );
 
         attackClip.events.push_back({8, 
@@ -160,7 +163,7 @@ private:
             rollClip
         );
 
-        secondAttackClip.events.push_back({10, 
+        secondAttackClip.events.push_back({16, 
             [&]() 
             {
             // Execute heavy attack logic

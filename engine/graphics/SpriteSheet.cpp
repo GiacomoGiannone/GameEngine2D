@@ -54,7 +54,7 @@ namespace GE
         );
     }
 
-    AnimationClip GE::SpriteSheet::createClip(std::initializer_list<int> frameIndices,float frameDuration,bool loop, PlaybackMode playbackMode)
+    AnimationClip GE::SpriteSheet::createClip(std::initializer_list<int> frameIndices,float frameDuration,bool loop, PlaybackMode playbackMode, float movementMultiplier)
     {
         std::cout 
             << "Creating animation clip with frame duration: "
@@ -69,7 +69,7 @@ namespace GE
         clip.frameDuration = frameDuration;
         clip.loop = loop;
         clip.playbackMode = playbackMode;
-
+        clip.movementMultiplier = movementMultiplier;
         std::cout << "frames: ";
 
         for(int i : frameIndices)

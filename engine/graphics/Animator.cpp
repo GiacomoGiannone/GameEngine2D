@@ -170,5 +170,14 @@ namespace GE
     {
         return currentFrame;
     }
+
+    float Animator::getMovementMultiplier() const
+    {
+        if(currentAnimation.empty())
+            return 1.0f;
+
+        auto& animation = animations.at(currentAnimation);
+        return animation.movementMultiplier;
+    }
 }
 

@@ -37,6 +37,7 @@ namespace GE
         PlaybackMode playbackMode = PlaybackMode::Forward;
 
         std::vector<AnimationEvent> events;
+        float movementMultiplier = 1.0f; // Default movement multiplier is 1.0 (no change)
     };
 
     struct AnimationState
@@ -73,6 +74,7 @@ namespace GE
             const std::string& getCurrentAnimation() const;
             int getCurrentFrame() const;
             AnimationClip& getAnimation(const std::string& name) { return animations.at(name); }
+            float getMovementMultiplier() const;
     };
 
 }
