@@ -210,29 +210,36 @@ namespace GE
         // {
         //     isRunning = false;
         // }
-
-        // --- GESTIONE INPUT ---
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+        
+        if(isRollLocked)
         {
-            velocity.x -= speed * movementMultiplier  ;
-            if (animator) animator->setFlipped(true);
-            facingDirection = -1; // Facing left
+            velocity = rollVelocity; // Maintain the roll velocity
         }
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+        else
         {
-            velocity.x += speed * movementMultiplier  ;
-            if (animator) animator->setFlipped(false);
-            facingDirection = 1; // Facing right
-        }
+            // --- GESTIONE INPUT ---
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+            {
+                velocity.x -= speed * movementMultiplier  ;
+                if (animator) animator->setFlipped(true);
+                facingDirection = -1; // Facing left
+            }
 
-        if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) velocity.y -= speed * movementMultiplier ;
-        if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) velocity.y += speed * movementMultiplier  ;
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+            {
+                velocity.x += speed * movementMultiplier  ;
+                if (animator) animator->setFlipped(false);
+                facingDirection = 1; // Facing right
+            }
 
-        if (!Y_movement_enabled && onGround && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
-        {
-            velocity.y = jumpVelocity;
-            onGround = false;
+            if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) velocity.y -= speed * movementMultiplier ;
+            if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) velocity.y += speed * movementMultiplier  ;
+
+            if (!Y_movement_enabled && onGround && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
+            {
+                velocity.y = jumpVelocity;
+                onGround = false;
+            }
         }
 
         // --- CALCOLO DEI BORDI (Partendo dal presupposto che X e Y siano CENTRO) ---
@@ -351,10 +358,38 @@ namespace GE
         debugPrint = value;
     }
 
-    void CharacterController::roll()
+    void CharacterController::lockRollMovement()
     {
-        //reduce the collision box height to half of its original height
-        height = originalHeight * 0.5f;
-        collisionBox.setSize({width, height});
+        isRollLocked = true;
+
+        // Cattura la direzione di movimento corrente (WASD attivi in quel momento)
+        sf::Vector2f dir(0.0f, 0.0f);
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) dir.x -= 1.0f;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) dir.x += 1.0f;
+        if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) dir.y -= 1.0f;
+        if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) dir.y += 1.0f;
+
+        // Se non si sta premendo nulla, usa la direzione verso cui il personaggio è rivolto
+        if (dir.x == 0.0f && dir.y == 0.0f)
+        {
+            dir.x = static_cast<float>(facingDirection);
+        }
+
+        // Normalizza per non avere impulso più forte in diagonale
+        float length = std::sqrt(dir.x * dir.x + dir.y * dir.y);
+        if (length > 0.0f)
+        {
+            dir.x /= length;
+            dir.y /= length;
+        }
+
+        rollVelocity = dir * rollSpeed;
+    }
+
+    void CharacterController::unlockRollMovement()
+    {
+        isRollLocked = false;
+        rollVelocity = {0.0f, 0.0f};
     }
 }

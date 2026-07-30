@@ -20,7 +20,6 @@ namespace GE
     void Animator::play(const std::string& name)
     {
         auto it = animations.find(name);
-
         if(it == animations.end())
         {
             std::cout << "Animation not found: " << name << std::endl;
@@ -41,13 +40,23 @@ namespace GE
                 break;
 
             case PlaybackMode::Reverse:
-                currentFrame = animation.frames.size() - 1;
+                currentFrame = static_cast<int>(animation.frames.size()) - 1;
                 direction = -1;
                 break;
         }
 
         spriteRenderer.setTexture(*animation.texture);
         spriteRenderer.setTextureRect(animation.frames[currentFrame]);
+
+        // NUOVO: controlla ed esegui eventuali eventi sul frame iniziale
+        for(auto& event : animation.events)
+        {
+            if(event.startFrame <= static_cast<std::size_t>(currentFrame) && 
+            event.endFrame >= static_cast<std::size_t>(currentFrame))
+            {
+                event.callback();
+            }
+        }
     }
 
     void Animator::update(float deltaTime)

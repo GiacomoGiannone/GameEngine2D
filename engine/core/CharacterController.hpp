@@ -42,7 +42,9 @@ namespace GE
         bool Y_movement_enabled = false;
         Animator* animator = nullptr;
         int facingDirection = 1; // 1 for right, -1 for left
-        bool isRunning = false; // Flag to indicate if the character is running
+        bool isRollLocked = false; // Flag to lock rolling for a short duration
+        sf::Vector2f rollVelocity{0.0f, 0.0f}; // Store the velocity during roll
+        float rollSpeed = 300.0f; // Speed during roll
 
         static bool getCollisionBox(const GE::GameObject* gameObject, const GE::CollisionBox*& outBox);
 
@@ -76,6 +78,11 @@ namespace GE
         int getFacingDirection() const { return facingDirection; } // 1 for right, -1 for left
         void roll(); //this function reduces the hitbox of the character controller to half of its height 
         void resetHitbox() { setRectangleShape(width, originalHeight); } //this function resets the hitbox of the character controller to its original height
+
+        void lockRollMovement();
+        void unlockRollMovement();
+        bool getIsRollLocked() const { return isRollLocked; }
+        void setRollSpeed(float speed) { rollSpeed = speed; }
         
         virtual ~CharacterController() = default;
 

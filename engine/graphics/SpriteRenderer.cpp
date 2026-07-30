@@ -43,32 +43,32 @@ namespace GE
         sprite->setPosition({transform.getX(), transform.getY()});
         renderer.draw(*sprite);
 
-        // DEBUG
-        sf::RectangleShape outline;
+        // // DEBUG
+        // sf::RectangleShape outline;
 
-        const auto rect = sprite->getTextureRect();
+        // const auto rect = sprite->getTextureRect();
 
-        outline.setSize({
-            static_cast<float>(rect.size.x),
-            static_cast<float>(rect.size.y)
-        });
+        // outline.setSize({
+        //     static_cast<float>(rect.size.x),
+        //     static_cast<float>(rect.size.y)
+        // });
 
-        outline.setOrigin({rect.size.x / 2.f, rect.size.y / 2.f});
-        outline.setPosition(sprite->getPosition());
+        // outline.setOrigin({rect.size.x / 2.f, rect.size.y / 2.f});
+        // outline.setPosition(sprite->getPosition());
 
-        outline.setFillColor(sf::Color::Transparent);
-        outline.setOutlineThickness(1.f);
-        outline.setOutlineColor(sf::Color::Red);
+        // outline.setFillColor(sf::Color::Transparent);
+        // outline.setOutlineThickness(1.f);
+        // outline.setOutlineColor(sf::Color::Red);
 
-        renderer.draw(outline);
+        // renderer.draw(outline);
 
-        sf::CircleShape pivot(3.f);
-        pivot.setFillColor(sf::Color::Green);
+        // sf::CircleShape pivot(3.f);
+        // pivot.setFillColor(sf::Color::Green);
 
-        pivot.setOrigin({3.f, 3.f});
-        pivot.setPosition(sprite->getPosition());
+        // pivot.setOrigin({3.f, 3.f});
+        // pivot.setPosition(sprite->getPosition());
 
-        renderer.draw(pivot);
+        // renderer.draw(pivot);
     }
 
     SpriteRenderer::~SpriteRenderer()

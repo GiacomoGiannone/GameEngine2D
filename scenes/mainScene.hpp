@@ -48,8 +48,9 @@ private:
             35.0f, // width of the collision box
             70.0f  // height of the collision box
         );
+        characterController.setRollSpeed(75.0f); // Set the roll speed 
         //get the character controller to print debug info
-        player->getComponentOfType<GE::CharacterController>().setDebugPrint(true);
+        player->getComponentOfType<GE::CharacterController>().setDebugPrint(false);
         //set this variable to true to enable Y movement with W and S keys
         player->getComponentOfType<GE::CharacterController>().setYMovementEnabled(true);
 
@@ -176,6 +177,18 @@ private:
             player->getComponentOfType<GE::Hittable>().setInvincible(false); // Make the player vulnerable again after the roll
             }});
 
+        rollClip.events.push_back({0,0, 
+            [&]() 
+            {
+            // Lock the roll movement at the start of the roll
+            characterController.lockRollMovement();
+            }});
+
+        rollClip.events.push_back({71,71, 
+            [&]() 
+            {
+                characterController.unlockRollMovement(); // Unlock the roll movement at the end of the roll
+            }});
         secondAttackClip.events.push_back({16,16, 
             [&]() 
             {
@@ -338,6 +351,14 @@ private:
             "walk",
             [&characterController]() {
                 return !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift);
+            }
+        );
+
+        playerAnimator.addTransition(
+            "run",
+            "roll",
+            [&characterController]() {
+                return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space);
             }
         );
 
