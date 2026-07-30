@@ -42,6 +42,7 @@ namespace GE
         bool Y_movement_enabled = false;
         Animator* animator = nullptr;
         int facingDirection = 1; // 1 for right, -1 for left
+        bool isRunning = false; // Flag to indicate if the character is running
 
         static bool getCollisionBox(const GE::GameObject* gameObject, const GE::CollisionBox*& outBox);
 

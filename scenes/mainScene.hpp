@@ -97,6 +97,7 @@ private:
         sf::Vector2f heavyAttackCollisionBox(70.0f, 100.0f); //width, height
         player->addComponent<GE::HeavyAttack>(25.0f, 2.0f, heavyAttackCollisionBox); //damage, cooldown, collision box, id
         player->getComponentOfType<GE::HeavyAttack>().setDebugPrint(true);
+        player->addComponent<GE::Hittable>(100.0f); //add hittable component to player with 100 health
 
         playerAnimator.addAnimation(
             "walk",
@@ -147,6 +148,14 @@ private:
             0.5f // Set movement multiplier to 0.5 for second attack animation
         );
 
+        auto runClip = playerRunSpriteSheet->createClip(
+            {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}, // Frame indices for run animation till 23
+            0.05f, // Frame duration
+            true, // Loop the animation
+            GE::PlaybackMode::Forward,
+            1.5f // Set movement multiplier to 1.5 for run animation
+        );
+
         attackClip.events.push_back({8,8, 
             [&]() 
             {
@@ -158,13 +167,13 @@ private:
             [&]() 
             {
             // Execute roll logic
-            characterController.roll();
+            player->getComponentOfType<GE::Hittable>().setInvincible(true); // Make the player invincible during the roll
             }});
 
-        rollClip.events.push_back({41,41, //reset the hitbox of the character controller to its original height when the roll animation is finished
+        rollClip.events.push_back({41,41, 
             [&]() 
             {
-            characterController.resetHitbox();
+            player->getComponentOfType<GE::Hittable>().setInvincible(false); // Make the player vulnerable again after the roll
             }});
 
         secondAttackClip.events.push_back({16,16, 
@@ -187,6 +196,11 @@ private:
         playerAnimator.addAnimation(
             "attack2",
             secondAttackClip
+        );
+
+        playerAnimator.addAnimation(
+            "run",
+            runClip
         );
 
         playerAnimator.addTransition(
@@ -248,13 +262,13 @@ private:
             }
         );
 
-        playerAnimator.addTransition(
-            "idle",
-            "roll",
-            [&characterController]() {
-                return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space);
-            }
-        );
+        // playerAnimator.addTransition(
+        //     "idle",
+        //     "roll",
+        //     [&characterController]() {
+        //         return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space);
+        //     }
+        // );
 
         playerAnimator.addTransition(
             "roll",
@@ -311,6 +325,22 @@ private:
             }
         );
 
+        playerAnimator.addTransition(
+            "walk",
+            "run",
+            [&characterController]() {
+                return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift);
+            }
+        );
+
+        playerAnimator.addTransition(
+            "run",
+            "walk",
+            [&characterController]() {
+                return !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift);
+            }
+        );
+
         playerAnimator.play("idle");
         
         rectangleObject2 = new GE::GameObject();
@@ -337,6 +367,7 @@ private:
         //add collision box to rectangleObject3
         rectangleObject3->addComponent<GE::CollisionBox>(150.0f, 250.0f);
         rectangleObject3->addComponent<GE::Hittable>(100.0f);
+        rectangleObject3->getComponentOfType<GE::Hittable>().setInvincible(true); // Make rectangleObject3 invincible to test the invincibility feature
         addGameObject(rectangleObject3);
 
         rectangleObject4 = new GE::GameObject();

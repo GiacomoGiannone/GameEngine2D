@@ -192,6 +192,7 @@ namespace GE
         // Resetta la velocità
         velocity.x = 0.0f;
         if (Y_movement_enabled) velocity.y = 0.0f;
+        //float runningMultiplier = isRunning ? 1.5f : 1.0f; // Adjust speed if running
 
         //get movement multiplier from animator if available
         float movementMultiplier = 1.0f;
@@ -200,23 +201,33 @@ namespace GE
             movementMultiplier = animator->getMovementMultiplier();
         }
 
+        //holding SHIFT key makes the character run
+        // if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift))
+        // {
+        //     isRunning = true;
+        // }
+        // else
+        // {
+        //     isRunning = false;
+        // }
+
         // --- GESTIONE INPUT ---
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
         {
-            velocity.x -= speed * movementMultiplier;
+            velocity.x -= speed * movementMultiplier  ;
             if (animator) animator->setFlipped(true);
             facingDirection = -1; // Facing left
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
         {
-            velocity.x += speed * movementMultiplier;
+            velocity.x += speed * movementMultiplier  ;
             if (animator) animator->setFlipped(false);
             facingDirection = 1; // Facing right
         }
 
-        if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) velocity.y -= speed * movementMultiplier;
-        if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) velocity.y += speed * movementMultiplier;
+        if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) velocity.y -= speed * movementMultiplier ;
+        if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) velocity.y += speed * movementMultiplier  ;
 
         if (!Y_movement_enabled && onGround && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
         {

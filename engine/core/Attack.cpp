@@ -102,8 +102,15 @@ namespace GE
                     if (attackBounds.findIntersection(targetBounds))
                     {
                         // Apply damage to the target
-                        hittable.takeDamage(damage);
-                        std::cout << "Hit object! Damage applied: " << damage << std::endl;
+                        if(hittable.getInvincible())
+                        {
+                            std::cout << "Target is invincible! No damage applied." << std::endl;
+                        }
+                        else
+                        {
+                            hittable.takeDamage(damage);
+                            std::cout << "Hit object! Damage applied: " << damage << std::endl;
+                        }
                     }
                 }
             }
