@@ -24,6 +24,7 @@ namespace GE
             SpriteRenderer() = default;
             SpriteRenderer(const std::string& textureId, const std::filesystem::path& texturePath, 
                 Transform& transform, int UpperCorner = 0, int LowerCorner = 0, int Width = 0, int Height = 0);
+            SpriteRenderer(Transform& transform, int UpperCorner = 0, int LowerCorner = 0, int Width = 0, int Height = 0);
             ~SpriteRenderer();
 
             void setScale(float scaleX, float scaleY);

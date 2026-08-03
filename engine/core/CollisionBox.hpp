@@ -19,6 +19,6 @@ namespace GE
         void setSize(float width, float height) { box.setSize(sf::Vector2f(width, height)); }
 
         void update(float deltaTime) override { (void)deltaTime; }
-        void render(Renderer& renderer) override { (void)renderer; }
+        void render(Renderer& renderer) override;
     };
 }

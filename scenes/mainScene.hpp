@@ -16,14 +16,14 @@
 #include "Core/LightAttack.hpp"
 #include "Core/HeavyAttack.hpp"
 #include "Core/Hittable.hpp"
+#include "Core/LevelLoader.hpp"
+#include "Core/LevelBuilder.hpp"
+#include "Core/Level.hpp"
 
 class MainScene : public GE::Scene
 {
 private:
     GE::GameObject* player;
-    GE::GameObject* rectangleObject2;
-    GE::GameObject* rectangleObject3;
-    GE::GameObject* rectangleObject4;
     
     GE::SpriteSheet* playerSpriteSheetIdle;
     GE::SpriteSheet* playerSpriteSheetWalk;
@@ -40,7 +40,8 @@ private:
         player->getTransform().setPosition(250.0f, 180.0f);
 
         // Add sprite renderer to player FIRST (needed by Animator)
-        auto& spriteRenderer = player->addComponent<GE::SpriteRenderer>("player_texture", "assets/player.png", player->getTransform());
+        // No initial texture is provided - the Animator will set the texture when an animation is played
+        auto& spriteRenderer = player->addComponent<GE::SpriteRenderer>(player->getTransform());
 
         // Add character controller
         auto& characterController = player->addComponent<GE::CharacterController>(
@@ -364,56 +365,21 @@ private:
 
         playerAnimator.play("idle");
         
-        rectangleObject2 = new GE::GameObject();
-        rectangleObject2->getTransform().setPosition(100.0f, 400.0f);
-        rectangleObject2->addComponent<GE::RectangleRenderer>(
-            200.0f,
-            100.0f,
-            GE::Color(255, 100, 100),
-            rectangleObject2->getTransform()
-        );
-        //add collision box to rectangleObject2
-        rectangleObject2->addComponent<GE::CollisionBox>(200.0f, 100.0f);
-        rectangleObject2->addComponent<GE::Hittable>(100.0f);
-        addGameObject(rectangleObject2);
-
-        rectangleObject3 = new GE::GameObject();
-        rectangleObject3->getTransform().setPosition(550.0f, 100.0f);
-        rectangleObject3->addComponent<GE::RectangleRenderer>(
-            150.0f,
-            250.0f,
-            GE::Color(100, 255, 100),
-            rectangleObject3->getTransform()
-        );
-        //add collision box to rectangleObject3
-        rectangleObject3->addComponent<GE::CollisionBox>(150.0f, 250.0f);
-        rectangleObject3->addComponent<GE::Hittable>(100.0f);
-        rectangleObject3->getComponentOfType<GE::Hittable>().setInvincible(true); // Make rectangleObject3 invincible to test the invincibility feature
-        addGameObject(rectangleObject3);
-
-        rectangleObject4 = new GE::GameObject();
-        rectangleObject4->getTransform().setPosition(400.0f, 350.0f);
-        rectangleObject4->addComponent<GE::RectangleRenderer>(
-            120.0f,
-            120.0f,
-            GE::Color(255, 255, 100),
-            rectangleObject4->getTransform()
-        );
-        //add collision box to rectangleObject4
-        rectangleObject4->addComponent<GE::CollisionBox>(120.0f, 120.0f);
-        rectangleObject4->addComponent<GE::Hittable>(100.0f);
         
-        rectangleObject4->setRenderOrder(100); // Set a higher render order for this object
-        rectangleObject3->setRenderOrder(100); // Set a lower render order for this object
-        rectangleObject2->setRenderOrder(100); // Set a lower render order for this object
         player->setRenderOrder(99); // Set a lower render order for this object
 
-        addGameObject(rectangleObject4);
 
         addGameObject(player);
         characterController.setWorldObjects(&getGameObjects());
 
         setCameraTarget(player);
+
+        //instatiate a levelLoader
+        GE::Level level = GE::LevelLoader::load("assets/Levels/CastleLevel/Layout.txt");
+
+        //build the level in the scene
+        GE::LevelBuilder levelBuilder(this);
+        levelBuilder.build(level);
 
         //get the camera and set a larger viewport size to see more of the scene
         getCamera().setViewportSize(800, 600);
@@ -423,15 +389,6 @@ private:
     {
         removeGameObject(player);
         delete player;
-
-        removeGameObject(rectangleObject2);
-        delete rectangleObject2;
-
-        removeGameObject(rectangleObject3);
-        delete rectangleObject3;
-
-        removeGameObject(rectangleObject4);
-        delete rectangleObject4;
 
         delete playerSpriteSheetWalk;
         delete playerSpriteSheetAttack;

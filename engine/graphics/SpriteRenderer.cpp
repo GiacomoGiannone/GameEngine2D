@@ -15,9 +15,27 @@ namespace GE
             sprite->setTextureRect(sf::IntRect(sf::Vector2i(UpperCorner, LowerCorner), sf::Vector2i(Width, Height)));
         }
 
-        // --- AGGIUNGI QUESTA RIGA ---
+        const auto textureSize = sprite->getTexture().getSize();
+        const float originX = Width > 0 ? Width / 2.0f : static_cast<float>(textureSize.x) / 2.0f;
+        const float originY = Height > 0 ? Height / 2.0f : static_cast<float>(textureSize.y) / 2.0f;
+        sprite->setOrigin({originX, originY});
+    }
+
+    SpriteRenderer::SpriteRenderer(Transform& transform, int UpperCorner, int LowerCorner, int Width, int Height)
+        : texture(nullptr), transform(transform), textureId("")
+    {
+        // Create a 1x1 placeholder texture so the sprite has a valid texture
+        texture = new sf::Texture();
+        texture->resize({1, 1});
+
+        sprite = new sf::Sprite(*texture);
+
+        if (Width > 0 && Height > 0)
+        {
+            sprite->setTextureRect(sf::IntRect(sf::Vector2i(UpperCorner, LowerCorner), sf::Vector2i(Width, Height)));
+        }
+
         sprite->setOrigin({Width / 2.0f, Height / 2.0f});
-        // ---------------------------
     }
 
     const sf::Texture& SpriteRenderer::getTexture() const
@@ -75,6 +93,13 @@ namespace GE
     {
         // Call the texture manager to unload the texture
         TextureManager::getInstance().unloadTexture(textureId);
+
+        // If this renderer was created without a texture (placeholder), delete the placeholder texture
+        if (textureId.empty())
+        {
+            delete texture;
+        }
+
         delete sprite;
     }
 

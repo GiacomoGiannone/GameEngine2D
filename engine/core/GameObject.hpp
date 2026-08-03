@@ -64,9 +64,6 @@ namespace GE
             }
 
             components.push_back(std::move(component));
-
-            std::cout << "Added component of type: " << typeid(T).name() << std::endl;
-
             return ref;
         }
 
