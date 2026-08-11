@@ -19,6 +19,7 @@ namespace GE
 
     void Animator::play(const std::string& name)
     {
+        std::cout << "[Animator] play request: " << name << std::endl;
         auto it = animations.find(name);
         if(it == animations.end())
         {
@@ -30,6 +31,18 @@ namespace GE
         elapsedTime = 0.f;
 
         auto& animation = it->second;
+
+        if (animation.texture == nullptr)
+        {
+            std::cout << "[Animator] ERROR: animation texture is null for: " << name << std::endl;
+            return;
+        }
+
+        if (animation.frames.empty())
+        {
+            std::cout << "[Animator] ERROR: animation has no frames: " << name << std::endl;
+            return;
+        }
 
         switch(animation.playbackMode)
         {
@@ -46,7 +59,9 @@ namespace GE
         }
 
         spriteRenderer.setTexture(*animation.texture);
+    std::cout << "[Animator] texture set for: " << name << ", frames: " << animation.frames.size() << std::endl;
         spriteRenderer.setTextureRect(animation.frames[currentFrame]);
+    std::cout << "[Animator] initial frame rect set for: " << name << ", frame: " << currentFrame << std::endl;
 
         // NUOVO: controlla ed esegui eventuali eventi sul frame iniziale
         for(auto& event : animation.events)
@@ -67,8 +82,22 @@ namespace GE
         {
             if(transition.fromAnimation == currentAnimation)
             {
-                if(transition.condition())
+                bool shouldTransition = false;
+                try
                 {
+                    shouldTransition = transition.condition();
+                }
+                catch (const std::exception& ex)
+                {
+                    std::cout << "[Animator] transition condition exception from '" << transition.fromAnimation
+                              << "' to '" << transition.toAnimation << "': " << ex.what() << std::endl;
+                    throw;
+                }
+
+                if(shouldTransition)
+                {
+                    std::cout << "[Animator] transition triggered: " << transition.fromAnimation
+                              << " -> " << transition.toAnimation << std::endl;
                     play(transition.toAnimation);
                     break;
                 }

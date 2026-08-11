@@ -27,5 +27,6 @@ namespace GE
         void setScene(Scene* scene);
         void run();
         Scene* getCurrentScene() const { return activeScene; }
+        Renderer* getRenderer() const { return renderer; }
     };
 }

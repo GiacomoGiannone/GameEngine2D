@@ -3,6 +3,7 @@
 #include "graphics/Renderer.hpp"
 
 #include <algorithm>
+#include <iostream>
 
 namespace GE
 {
@@ -10,6 +11,12 @@ namespace GE
 
     void Scene::addGameObject(GameObject* gameObject)
     {
+        if (gameObject == nullptr)
+        {
+            std::cout << "[Scene] Warning: attempted to add null GameObject to scene '" << name << "'" << std::endl;
+            return;
+        }
+
         gameObjects.push_back(gameObject);
     }
 

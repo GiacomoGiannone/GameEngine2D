@@ -1,5 +1,8 @@
 #include "Input.hpp"
 #include <iostream>
+#include "Engine.hpp"
+#include "Scene.hpp"
+#include "Graphics/Renderer.hpp"
 
 namespace GE
 {
@@ -49,6 +52,22 @@ namespace GE
 
         previousRight = currentRight;
         currentRight = sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
+
+        mouseWheelDelta = 0.0f; // Reset the mouse wheel delta for the current frame
+
+        auto* window = Engine::getInstance()->getRenderer()->getWindow();
+        while (const auto event = window->pollEvent())
+        {
+            if (event->is<sf::Event::Closed>())
+            {
+                window->close();
+            }
+            else if (event->is<sf::Event::MouseWheelScrolled>())
+            {
+                auto* wheel = event->getIf<sf::Event::MouseWheelScrolled>();
+                mouseWheelDelta += wheel->delta; // Accumulate the mouse wheel delta for the current frame
+            }
+        }
     }
 
     bool Input::isMouseButtonJustPressed(MouseButton button)
@@ -65,8 +84,14 @@ namespace GE
                 return false;
         }
     }
+
+    float Input::getMouseWheelDelta()
+    {
+        return mouseWheelDelta;
+    }
     bool Input::previousLeft = false;
     bool Input::currentLeft = false;
     bool Input::previousRight = false;
     bool Input::currentRight = false;
+    float Input::mouseWheelDelta = 0.0f; // Initialize the mouse wheel delta
 }

@@ -45,11 +45,11 @@ private:
 
         // Add character controller
         auto& characterController = player->addComponent<GE::CharacterController>(
-            75.0f, // speed
+            65.0f, // speed
             35.0f, // width of the collision box
             70.0f  // height of the collision box
         );
-        characterController.setRollSpeed(75.0f); // Set the roll speed 
+        characterController.setRollSpeed(85.0f); // Set the roll speed 
         //get the character controller to print debug info
         player->getComponentOfType<GE::CharacterController>().setDebugPrint(false);
         //set this variable to true to enable Y movement with W and S keys
@@ -90,6 +90,10 @@ private:
 
         auto& playerAnimator = player->addComponent<GE::Animator>(spriteRenderer);
         characterController.setAnimator(&playerAnimator);
+
+        GE::GameObject* playerPtr = player;
+        GE::CharacterController* controllerPtr = &characterController;
+        GE::Animator* animatorPtr = &playerAnimator;
 
         //add attack components to player
         sf::Vector2f lightAttackCollisionBox(80.0f, 20.0f); //width, height
@@ -152,49 +156,49 @@ private:
 
         auto runClip = playerRunSpriteSheet->createClip(
             {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}, // Frame indices for run animation till 23
-            0.05f, // Frame duration
+            0.04f, // Frame duration
             true, // Loop the animation
             GE::PlaybackMode::Forward,
-            1.5f // Set movement multiplier to 1.5 for run animation
+            2.2f // Set movement multiplier to 2.5 for run animation
         );
 
         attackClip.events.push_back({8,8, 
-            [&]() 
+            [playerPtr, controllerPtr]() 
             {
             // Execute attack logic when the last frame of the attack animation is reached
-            player->getComponentOfType<GE::LightAttack>().execute(characterController.getFacingDirection());
+            playerPtr->getComponentOfType<GE::LightAttack>().execute(controllerPtr->getFacingDirection());
             }});
 
         rollClip.events.push_back({10,40, 
-            [&]() 
+            [playerPtr]() 
             {
             // Execute roll logic
-            player->getComponentOfType<GE::Hittable>().setInvincible(true); // Make the player invincible during the roll
+            playerPtr->getComponentOfType<GE::Hittable>().setInvincible(true); // Make the player invincible during the roll
             }});
 
         rollClip.events.push_back({41,41, 
-            [&]() 
+            [playerPtr]() 
             {
-            player->getComponentOfType<GE::Hittable>().setInvincible(false); // Make the player vulnerable again after the roll
+            playerPtr->getComponentOfType<GE::Hittable>().setInvincible(false); // Make the player vulnerable again after the roll
             }});
 
         rollClip.events.push_back({0,0, 
-            [&]() 
+            [controllerPtr]() 
             {
             // Lock the roll movement at the start of the roll
-            characterController.lockRollMovement();
+            controllerPtr->lockRollMovement();
             }});
 
         rollClip.events.push_back({71,71, 
-            [&]() 
+            [controllerPtr]() 
             {
-                characterController.unlockRollMovement(); // Unlock the roll movement at the end of the roll
+                controllerPtr->unlockRollMovement(); // Unlock the roll movement at the end of the roll
             }});
         secondAttackClip.events.push_back({16,16, 
-            [&]() 
+            [playerPtr, controllerPtr]() 
             {
             // Execute heavy attack logic
-            player->getComponentOfType<GE::HeavyAttack>().execute(characterController.getFacingDirection());
+            playerPtr->getComponentOfType<GE::HeavyAttack>().execute(controllerPtr->getFacingDirection());
             }});
 
         playerAnimator.addAnimation(
@@ -220,23 +224,23 @@ private:
         playerAnimator.addTransition(
             "idle",
             "walk",
-            [&characterController]() {
-                return characterController.isMoving();
+            [controllerPtr]() {
+                return controllerPtr->isMoving();
             }
         );
 
         playerAnimator.addTransition(
             "walk",
             "idle",
-            [&characterController]() {
-                return !characterController.isMoving();
+            [controllerPtr]() {
+                return !controllerPtr->isMoving();
             }
         );
 
         playerAnimator.addTransition(
             "walk",
             "attack",
-            [&characterController]() {
+            [controllerPtr]() {
                 return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Left);
             }
         );
@@ -244,7 +248,7 @@ private:
         playerAnimator.addTransition(
             "idle",
             "attack",
-            [&characterController]() {
+            [controllerPtr]() {
                 return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Left);
             }
         );
@@ -252,26 +256,26 @@ private:
         playerAnimator.addTransition(
             "attack",
             "idle",
-            [&playerAnimator]() {
-                return playerAnimator.getCurrentAnimation() == "attack" && 
-                playerAnimator.getCurrentFrame() == playerAnimator.getAnimation("attack").frames.size() - 1;
+            [animatorPtr]() {
+                return animatorPtr->getCurrentAnimation() == "attack" && 
+                animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack").frames.size()) - 1;
             }
         );
 
         playerAnimator.addTransition(
             "attack",
             "walk",
-            [&playerAnimator, &characterController]() {
-                return playerAnimator.getCurrentAnimation() == "attack" && 
-                playerAnimator.getCurrentFrame() == playerAnimator.getAnimation("attack").frames.size() - 1 &&
-                characterController.isMoving();
+            [animatorPtr, controllerPtr]() {
+                return animatorPtr->getCurrentAnimation() == "attack" && 
+                animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack").frames.size()) - 1 &&
+                controllerPtr->isMoving();
             }
         );
 
         playerAnimator.addTransition(
             "walk",
             "roll",
-            [&characterController]() {
+            [controllerPtr]() {
                 return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space);
             }
         );
@@ -287,19 +291,19 @@ private:
         playerAnimator.addTransition(
             "roll",
             "idle",
-            [&playerAnimator]() {
-                return playerAnimator.getCurrentAnimation() == "roll" && 
-                playerAnimator.getCurrentFrame() == playerAnimator.getAnimation("roll").frames.size() - 1;
+            [animatorPtr]() {
+                return animatorPtr->getCurrentAnimation() == "roll" && 
+                animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll").frames.size()) - 1;
             }
         );
 
         playerAnimator.addTransition(
             "roll",
             "walk",
-            [&playerAnimator, &characterController]() {
-                return playerAnimator.getCurrentAnimation() == "roll" && 
-                playerAnimator.getCurrentFrame() == playerAnimator.getAnimation("roll").frames.size() - 1 &&
-                characterController.isMoving();
+            [animatorPtr, controllerPtr]() {
+                return animatorPtr->getCurrentAnimation() == "roll" && 
+                animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll").frames.size()) - 1 &&
+                controllerPtr->isMoving();
             }
         );
 
@@ -307,7 +311,7 @@ private:
         playerAnimator.addTransition(
             "idle",
             "attack2",
-            [&characterController]() {
+            [controllerPtr]() {
                 return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Right);
             }
         );
@@ -315,7 +319,7 @@ private:
         playerAnimator.addTransition(
             "walk",
             "attack2",
-            [&characterController]() {
+            [controllerPtr]() {
                 return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Right);
             }
         );
@@ -323,26 +327,26 @@ private:
         playerAnimator.addTransition(
             "attack2",
             "idle",
-            [&playerAnimator]() {
-                return playerAnimator.getCurrentAnimation() == "attack2" && 
-                playerAnimator.getCurrentFrame() == playerAnimator.getAnimation("attack2").frames.size() - 1;
+            [animatorPtr]() {
+                return animatorPtr->getCurrentAnimation() == "attack2" && 
+                animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack2").frames.size()) - 1;
             }
         );
 
         playerAnimator.addTransition(
             "attack2",
             "walk",
-            [&playerAnimator, &characterController]() {
-                return playerAnimator.getCurrentAnimation() == "attack2" && 
-                playerAnimator.getCurrentFrame() == playerAnimator.getAnimation("attack2").frames.size() - 1 &&
-                characterController.isMoving();
+            [animatorPtr, controllerPtr]() {
+                return animatorPtr->getCurrentAnimation() == "attack2" && 
+                animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack2").frames.size()) - 1 &&
+                controllerPtr->isMoving();
             }
         );
 
         playerAnimator.addTransition(
             "walk",
             "run",
-            [&characterController]() {
+            [controllerPtr]() {
                 return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift);
             }
         );
@@ -350,7 +354,7 @@ private:
         playerAnimator.addTransition(
             "run",
             "walk",
-            [&characterController]() {
+            [controllerPtr]() {
                 return !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift);
             }
         );
@@ -358,8 +362,19 @@ private:
         playerAnimator.addTransition(
             "run",
             "roll",
-            [&characterController]() {
+            [controllerPtr]() {
                 return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space);
+            }
+        );
+
+        //run to idle transition
+        playerAnimator.addTransition(
+            "run",
+            "idle",
+            [animatorPtr, controllerPtr]() {
+                return animatorPtr->getCurrentAnimation() == "run" && 
+                animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("run").frames.size()) - 1 &&
+                !controllerPtr->isMoving();
             }
         );
 

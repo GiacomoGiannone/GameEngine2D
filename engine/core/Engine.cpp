@@ -26,14 +26,6 @@ namespace GE
 
     void Engine::update()
     {
-        while (const auto event = renderer->getWindow()->pollEvent())
-        {
-            if (event->is<sf::Event::Closed>())
-            {
-                renderer->getWindow()->close();
-            }
-        }
-
         const float deltaTime = 1.0f / 60.0f;
 
         if (activeScene != nullptr)

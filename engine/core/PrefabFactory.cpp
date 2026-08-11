@@ -14,7 +14,7 @@ namespace GE
             wall->getTransform().setPosition(x_position, y_position);
             wall->setRenderOrder(renderOrder);
             //add a texture renderer component to the wall
-            auto& wallRenderer = wall->addComponent<GE::SpriteRenderer>("Textures/Wall_1.png", "assets/Textures/Wall_1.png", wall->getTransform());
+            auto& wallRenderer = wall->addComponent<GE::SpriteRenderer>("Textures/Wall_2.png", "assets/Textures/Wall_2.png", wall->getTransform());
             //add a collision box to the wall using the texture dimensions
             auto wallTextureSize = wallRenderer.getTexture().getSize();
             wall->addComponent<GE::CollisionBox>(static_cast<float>(wallTextureSize.x), static_cast<float>(wallTextureSize.y));

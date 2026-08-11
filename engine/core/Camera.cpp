@@ -1,6 +1,7 @@
 #include "Camera.hpp"
 #include "GameObject.hpp"
 #include <algorithm>
+#include "Input.hpp"
 
 namespace GE
 {
@@ -88,6 +89,38 @@ namespace GE
             const float t = std::clamp(smoothSpeed * deltaTime, 0.0f, 1.0f);
             x_position = x_position + (targetX - x_position) * t;
             y_position = y_position + (targetY - y_position) * t;
+
+        }
+
+        float wheel = Input::getMouseWheelDelta();
+        if (wheel != 0.0f)
+        {
+            // Adjust zoom based on mouse wheel input.
+            const float zoomFactor = 1.1f; // Zoom in/out factor
+            if (wheel > 0.0f)
+            {
+                //clamp the zoom to a maximum value to prevent excessive zooming in
+                if (zoom * zoomFactor > 2.0f) // Maximum zoom level
+                {
+                    setZoom(2.0f);
+                }
+                else
+                {
+                    setZoom(zoom * zoomFactor);
+                }
+            }
+            else
+            {
+                //clamp the zoom to a minimum value to prevent excessive zooming out
+                if (zoom / zoomFactor < 0.1f) // Minimum zoom level
+                {
+                    setZoom(0.5f);
+                }
+                else
+                {
+                    setZoom(zoom / zoomFactor);
+                }
+            }
         }
 
         syncView();

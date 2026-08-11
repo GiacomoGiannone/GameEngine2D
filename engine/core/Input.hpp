@@ -22,6 +22,8 @@ namespace GE
 
             static bool previousRight;
             static bool currentRight;
+
+            static float mouseWheelDelta; // Amount of scrolling in the current frame
         public:
             // Check if a specific key is currently pressed.
             static bool isKeyPressed(int key);
@@ -35,6 +37,8 @@ namespace GE
 
             // Set the mouse cursor position.
             static void setMousePosition(double x, double y);
+
+            static float getMouseWheelDelta(); //returns the amount of scrolling in the current frame
 
             static void update();
     };
