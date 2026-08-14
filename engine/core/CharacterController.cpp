@@ -12,20 +12,19 @@
 namespace GE
 {
     CharacterController::CharacterController(float speed, float width, float height)
-        : speed(speed), width(width), height(height), colliderShape(ColliderShape::Rectangle), velocity(0.0f, 0.0f), gravity(900.0f), 
-        jumpVelocity(-350.0f), onGround(false), worldObjects(nullptr), originalHeight(height)
+        : speed(speed), width(width), height(height), colliderShape(ColliderShape::Rectangle), velocity(0.0f, 0.0f), gravity(900.0f), jumpVelocity(-350.0f), onGround(false), worldObjects(nullptr)
     {
         setRectangleShape(width, height);
     }
 
     CharacterController::CharacterController(float speed, float radius)
-        : speed(speed), width(radius * 2.0f), height(radius * 2.0f), colliderShape(ColliderShape::Circle), velocity(0.0f, 0.0f), gravity(900.0f), jumpVelocity(-350.0f), onGround(false), worldObjects(nullptr), originalHeight(radius * 2.0f)
+        : speed(speed), width(radius * 2.0f), height(radius * 2.0f), colliderShape(ColliderShape::Circle), velocity(0.0f, 0.0f), gravity(900.0f), jumpVelocity(-350.0f), onGround(false), worldObjects(nullptr)
     {
         setCircleShape(radius);
     }
 
     CharacterController::CharacterController(float speed, const std::vector<sf::Vector2f>& points)
-        : speed(speed), width(0.0f), height(0.0f), colliderShape(ColliderShape::Convex), velocity(0.0f, 0.0f), gravity(900.0f), jumpVelocity(-350.0f), onGround(false), worldObjects(nullptr), originalHeight(0.0f)
+        : speed(speed), width(0.0f), height(0.0f), colliderShape(ColliderShape::Convex), velocity(0.0f, 0.0f), gravity(900.0f), jumpVelocity(-350.0f), onGround(false), worldObjects(nullptr)
     {
         setConvexShape(points);
     }
@@ -96,6 +95,9 @@ namespace GE
 
     bool CharacterController::checkCollision(float x_position, float y_position, const std::vector<GE::GameObject*>& gameObjects) const
     {
+        const float halfWidth = width * 0.5f;
+        const float halfHeight = height * 0.5f;
+
         for (const auto& gameObject : gameObjects)
         {
             if (gameObject == owner)
@@ -111,16 +113,15 @@ namespace GE
 
             const float objX = gameObject->getX();
             const float objY = gameObject->getY();
-            const float objWidth = objBox->getWidth()*0.5f; // Adjusted for half-width
-            const float objHeight = objBox->getHeight()*0.5f; // Adjusted for half-height
+            const float objWidth = objBox->getWidth();
+            const float objHeight = objBox->getHeight();
+            const float objHalfWidth = objWidth * 0.5f;
+            const float objHalfHeight = objHeight * 0.5f;
 
-            float left = x_position - objWidth;
-            float right = x_position + objWidth;
-            float top = y_position - objHeight;
-            float bottom = y_position + objHeight;
-
-            if (left < objX + objWidth && right > objX &&
-                top < objY + objHeight && bottom > objY)
+            if (x_position - halfWidth < objX + objHalfWidth &&
+                x_position + halfWidth > objX - objHalfWidth &&
+                y_position - halfHeight < objY + objHalfHeight &&
+                y_position + halfHeight > objY - objHalfHeight)
             {
                 return true;
             }
@@ -155,10 +156,8 @@ namespace GE
             switch (colliderShape)
             {
                 case ColliderShape::Rectangle:
-                    // 1. Imposta la posizione della hitbox, ma SOTTRAI metà larghezza e altezza 
-                    // per centrarla sulle coordinate (X, Y) del personaggio.
                     collisionBox.setPosition(sf::Vector2f(
-                        owner->getX() - (collisionBox.getSize().x * 0.5f), 
+                        owner->getX() - (collisionBox.getSize().x * 0.5f),
                         owner->getY() - (collisionBox.getSize().y * 0.5f)
                     ));
                     //draw with alpha to make it semi-transparent
@@ -166,17 +165,14 @@ namespace GE
                     renderer.draw(collisionBox);
                     break;
                 case ColliderShape::Circle:
-                    // 2. Per il cerchio, devi sottrarre il raggio (che è width/2 oppure height/2)
                     collisionCircle.setPosition(sf::Vector2f(
-                        owner->getX() - (collisionCircle.getRadius()),
-                        owner->getY() - (collisionCircle.getRadius())
+                        owner->getX() - collisionCircle.getRadius(),
+                        owner->getY() - collisionCircle.getRadius()
                     ));
                     collisionCircle.setFillColor(sf::Color(255, 0, 0, 100));
                     renderer.draw(collisionCircle);
                     break;
                 case ColliderShape::Convex:
-                    // 3. Per il poligono convesso, sottrai metà larghezza e altezza calcolate
-                    // (sf::ConvexShape non ha un metodo setOrigin(), quindi devi spostare la posizione)
                     collisionConvex.setPosition(sf::Vector2f(
                         owner->getX() - (width * 0.5f),
                         owner->getY() - (height * 0.5f)
@@ -187,170 +183,159 @@ namespace GE
             }
         }
     }
+
     void CharacterController::move(float deltaTime, float& x_position, float& y_position, const std::vector<GE::GameObject*>& gameObjects)
     {
-        // Resetta la velocità
         velocity.x = 0.0f;
-        if (Y_movement_enabled) velocity.y = 0.0f;
-        //float runningMultiplier = isRunning ? 1.5f : 1.0f; // Adjust speed if running
-
-        //get movement multiplier from animator if available
-        float movementMultiplier = 1.0f;
-        if(animator)
+        if (Y_movement_enabled)
         {
-            movementMultiplier = animator->getMovementMultiplier();
+            velocity.y = 0.0f;
         }
 
-        //holding SHIFT key makes the character run
-        // if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift))
-        // {
-        //     isRunning = true;
-        // }
-        // else
-        // {
-        //     isRunning = false;
-        // }
-        
-        if(isRollLocked)
+        const float movementMultiplier = animator ? animator->getMovementMultiplier() : 1.0f;
+
+        if (isRollLocked)
         {
-            velocity = rollVelocity; // Maintain the roll velocity
+            velocity = rollVelocity;
         }
         else
         {
-            // --- GESTIONE INPUT ---
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+            const bool leftPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A);
+            const bool rightPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D);
+            const bool upPressed = Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W);
+            const bool downPressed = Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S);
+
+            // Enforce strict 4-direction movement: when both axes are pressed, vertical has priority,
+            // otherwise the horizontal axis wins. This avoids diagonal motion and keeps facingDirection
+            // aligned with the actual movement axis.
+            if (upPressed || downPressed)
             {
-                velocity.x -= speed * movementMultiplier  ;
-                if (animator) animator->setFlipped(true);
-                facingDirection = -1; // Facing left
+                if (upPressed && !downPressed)
+                {
+                    velocity.y -= speed * movementMultiplier;
+                    facingDirection = 2;
+                }
+                else if (downPressed && !upPressed)
+                {
+                    velocity.y += speed * movementMultiplier;
+                    facingDirection = -2;
+                }
             }
-
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+            else if (leftPressed || rightPressed)
             {
-                velocity.x += speed * movementMultiplier  ;
-                if (animator) animator->setFlipped(false);
-                facingDirection = 1; // Facing right
-            }
-
-            if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) velocity.y -= speed * movementMultiplier ;
-            if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) velocity.y += speed * movementMultiplier  ;
-
-            if (!Y_movement_enabled && onGround && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
-            {
-                velocity.y = jumpVelocity;
-                onGround = false;
+                if (leftPressed && !rightPressed)
+                {
+                    velocity.x -= speed * movementMultiplier;
+                    facingDirection = -1;
+                }
+                else if (rightPressed && !leftPressed)
+                {
+                    velocity.x += speed * movementMultiplier;
+                    facingDirection = 1;
+                }
             }
         }
 
-        // --- CALCOLO DEI BORDI (Partendo dal presupposto che X e Y siano CENTRO) ---
-        // Se il motore passa X e Y come angolo, questa matematica li tratta comunque come centro.
-        // Il rettangolo piccolo nell'immagine si allineerà perché stiamo calcolando tutto da qui.
-        const float halfW = width * 0.5f;
-        const float halfH = height * 0.5f;
+        if (!Y_movement_enabled && onGround && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
+        {
+            velocity.y = jumpVelocity;
+            onGround = false;
+        }
+
+        const float halfWidth = width * 0.5f;
+        const float halfHeight = height * 0.5f;
 
         float newX = x_position + velocity.x * deltaTime;
-        float newY = y_position; // Y verrà processata dopo
+        float newY = y_position;
 
-        // --- COLLISIONE SU X ---
         for (const auto& gameObject : gameObjects)
         {
-            if (gameObject == owner) continue;
+            if (gameObject == owner)
+            {
+                continue;
+            }
 
             const CollisionBox* objBox = nullptr;
-            if (!getCollisionBox(gameObject, objBox)) continue;
+            if (!getCollisionBox(gameObject, objBox))
+            {
+                continue;
+            }
 
             const float objX = gameObject->getX();
             const float objY = gameObject->getY();
-            const float objW = objBox->getWidth();
-            const float objH = objBox->getHeight();
+            const float objWidth = objBox->getWidth();
+            const float objHeight = objBox->getHeight();
+            const float objHalfWidth = objWidth * 0.5f;
+            const float objHalfHeight = objHeight * 0.5f;
 
-            // Calcoliamo i bordi ASSOLUTI del personaggio per questo frame (X)
-            float myLeft   = newX - halfW;
-            float myRight  = newX + halfW;
-            float myTop    = y_position - halfH;
-            float myBottom = y_position + halfH;
-
-            // Calcoliamo i bordi ASSOLUTI dell'oggetto
-            const float objHalfW = objW * 0.5f;
-            const float objHalfH = objH * 0.5f;
-            float otherLeft   = objX - objHalfW;
-            float otherRight  = objX + objHalfW;
-            float otherTop    = objY - objHalfH;
-            float otherBottom = objY + objHalfH;
-
-            // Controllo intersezione
-            if (myLeft < otherRight && myRight > otherLeft &&
-                myTop < otherBottom && myBottom > otherTop)
+            if (newX - halfWidth < objX + objHalfWidth &&
+                newX + halfWidth > objX - objHalfWidth &&
+                y_position - halfHeight < objY + objHalfHeight &&
+                y_position + halfHeight > objY - objHalfHeight)
             {
-                // Se andiamo a destra, spingici a sinistra dell'oggetto
                 if (velocity.x > 0.0f)
                 {
-                    newX = otherLeft - halfW; 
+                    newX = objX - objHalfWidth - halfWidth;
                 }
-                // Se andiamo a sinistra, spingici a destra dell'oggetto
                 else if (velocity.x < 0.0f)
                 {
-                    newX = otherRight + halfW;
+                    newX = objX + objHalfWidth + halfWidth;
                 }
+
                 velocity.x = 0.0f;
             }
         }
 
-        x_position = newX; // Aggiorna X
+        x_position = newX;
 
-        // --- GRAVITÀ E MOVIMENTO Y ---
-        if (!Y_movement_enabled) velocity.y += gravity * deltaTime;
-        
+        if (!Y_movement_enabled)
+        {
+            velocity.y += gravity * deltaTime;
+        }
+
         newY = y_position + velocity.y * deltaTime;
         onGround = false;
 
-        // --- COLLISIONE SU Y ---
         for (const auto& gameObject : gameObjects)
         {
-            if (gameObject == owner) continue;
+            if (gameObject == owner)
+            {
+                continue;
+            }
 
             const CollisionBox* objBox = nullptr;
-            if (!getCollisionBox(gameObject, objBox)) continue;
+            if (!getCollisionBox(gameObject, objBox))
+            {
+                continue;
+            }
 
             const float objX = gameObject->getX();
             const float objY = gameObject->getY();
-            const float objW = objBox->getWidth();
-            const float objH = objBox->getHeight();
+            const float objWidth = objBox->getWidth();
+            const float objHeight = objBox->getHeight();
+            const float objHalfWidth = objWidth * 0.5f;
+            const float objHalfHeight = objHeight * 0.5f;
 
-            // Calcoliamo i bordi ASSOLUTI del personaggio per questo frame (Y, usando la X appena risolta)
-            float myLeft   = x_position - halfW;
-            float myRight  = x_position + halfW;
-            float myTop    = newY - halfH;
-            float myBottom = newY + halfH;
-
-            // --- COLLISIONE SU Y ---
-            const float objHalfW = objW * 0.5f;
-            const float objHalfH = objH * 0.5f;
-            float otherLeft   = objX - objHalfW;
-            float otherRight  = objX + objHalfW;
-            float otherTop    = objY - objHalfH;
-            float otherBottom = objY + objHalfH;
-
-            if (myLeft < otherRight && myRight > otherLeft &&
-                myTop < otherBottom && myBottom > otherTop)
+            if (x_position - halfWidth < objX + objHalfWidth &&
+                x_position + halfWidth > objX - objHalfWidth &&
+                newY - halfHeight < objY + objHalfHeight &&
+                newY + halfHeight > objY - objHalfHeight)
             {
-                // Caduta
                 if (velocity.y > 0.0f)
                 {
-                    newY = otherTop - halfH;
+                    newY = objY - objHalfHeight - halfHeight;
                     velocity.y = 0.0f;
                     onGround = true;
                 }
-                // Salto (testa che sbatte)
                 else if (velocity.y < 0.0f)
                 {
-                    newY = otherBottom + halfH;
+                    newY = objY + objHalfHeight + halfHeight;
                     velocity.y = 0.0f;
                 }
             }
         }
 
-        y_position = newY; // Aggiorna Y
+        y_position = newY;
     }
 
     void CharacterController::setDebugPrint(bool value)
@@ -360,31 +345,31 @@ namespace GE
 
     void CharacterController::lockRollMovement()
     {
-        isRollLocked = true;
+            isRollLocked = true;
 
-        // Cattura la direzione di movimento corrente (WASD attivi in quel momento)
-        sf::Vector2f dir(0.0f, 0.0f);
+            // Cattura la direzione di movimento corrente (WASD attivi in quel momento)
+            sf::Vector2f dir(0.0f, 0.0f);
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) dir.x -= 1.0f;
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) dir.x += 1.0f;
-        if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) dir.y -= 1.0f;
-        if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) dir.y += 1.0f;
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) dir.x -= 1.0f;
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) dir.x += 1.0f;
+            if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) dir.y -= 1.0f;
+            if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) dir.y += 1.0f;
 
-        // Se non si sta premendo nulla, usa la direzione verso cui il personaggio è rivolto
-        if (dir.x == 0.0f && dir.y == 0.0f)
-        {
-            dir.x = static_cast<float>(facingDirection);
-        }
+            // Se non si sta premendo nulla, usa la direzione verso cui il personaggio è rivolto
+            if (dir.x == 0.0f && dir.y == 0.0f)
+            {
+                dir.x = static_cast<float>(facingDirection);
+            }
 
-        // Normalizza per non avere impulso più forte in diagonale
-        float length = std::sqrt(dir.x * dir.x + dir.y * dir.y);
-        if (length > 0.0f)
-        {
-            dir.x /= length;
-            dir.y /= length;
-        }
+            // Normalizza per non avere impulso più forte in diagonale
+            float length = std::sqrt(dir.x * dir.x + dir.y * dir.y);
+            if (length > 0.0f)
+            {
+                dir.x /= length;
+                dir.y /= length;
+            }
 
-        rollVelocity = dir * rollSpeed;
+            rollVelocity = dir * rollSpeed;
     }
 
     void CharacterController::unlockRollMovement()
@@ -392,4 +377,6 @@ namespace GE
         isRollLocked = false;
         rollVelocity = {0.0f, 0.0f};
     }
+
+    
 }

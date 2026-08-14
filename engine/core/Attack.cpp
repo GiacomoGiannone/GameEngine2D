@@ -33,10 +33,18 @@ namespace GE
         sf::Vector2f ownerPos(ownerTransform.getX(), ownerTransform.getY());
         float rotationDeg = ownerTransform.getRotation();
 
-        // Set the origin based on direction: left-center for right, right-center for left
+        // Now there are four directions : 1 for right, -1 for left, 2 for up, -2 for down
         if (direction == -1)
         {
             collisionBox.setOrigin({collisionBox.getSize().x, collisionBox.getSize().y / 2.0f});
+        }
+        else if (direction == 2)
+        {
+            collisionBox.setOrigin({collisionBox.getSize().x / 2.0f, collisionBox.getSize().y});
+        }
+        else if (direction == -2)
+        {
+            collisionBox.setOrigin({collisionBox.getSize().x / 2.0f, 0.0f});
         }
         else
         {

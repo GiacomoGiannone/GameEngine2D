@@ -75,7 +75,7 @@ namespace GE
         bool isYMovementEnabled() const { return Y_movement_enabled; }
         bool isMoving() const { return std::abs(velocity.x) > 0.1f || std::abs(velocity.y) > 0.1f; }
         void setAnimator(Animator* animator) { this->animator = animator; }
-        int getFacingDirection() const { return facingDirection; } // 1 for right, -1 for left
+        int getFacingDirection() const { return facingDirection; } // 1 for right, -1 for left, 2 for up, -2 for down
         void roll(); //this function reduces the hitbox of the character controller to half of its height 
         void resetHitbox() { setRectangleShape(width, originalHeight); } //this function resets the hitbox of the character controller to its original height
 
