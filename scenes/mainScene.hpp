@@ -19,11 +19,15 @@
 #include "Core/LevelLoader.hpp"
 #include "Core/LevelBuilder.hpp"
 #include "Core/Level.hpp"
+#include "core/Light.hpp"
+#include "core/LightingSystem.hpp"
 
 class MainScene : public GE::Scene
 {
 private:
     GE::GameObject* player;
+    GE::Light playerLight;
+    GE::LightingSystem lightingSystem;
     
     GE::SpriteSheet* Player_Down_Attack_1_SpriteSheet;
     GE::SpriteSheet* Player_Down_Attack_2_SpriteSheet;
@@ -54,8 +58,11 @@ private:
     GE::SpriteSheet* Player_Left_Walk_SpriteSheet;
 
 public:
-    MainScene() : GE::Scene("MainScene")
+    MainScene() : GE::Scene("MainScene"), playerLight({250.0f, 180.0f}, 180.0f, 0.6f)
     {
+        lightingSystem.setAmbientLight(0.15f);
+        lightingSystem.addLight(playerLight);
+
         // Player-controlled rectangle (camera will follow this).
         player = new GE::GameObject();
         player->getTransform().setPosition(250.0f, 180.0f);
@@ -1811,6 +1818,14 @@ public:
 
         //get the camera and set a larger viewport size to see more of the scene
         getCamera().setViewportSize(800, 600);
+    }
+
+    void update(float deltaTime) override
+    {
+        GE::Scene::update(deltaTime);
+
+        playerLight.setPosition({player->getX(), player->getY()});
+        lightingSystem.update(getGameObjects());
     }
 
     virtual ~MainScene()

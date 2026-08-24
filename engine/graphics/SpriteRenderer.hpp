@@ -28,6 +28,8 @@ namespace GE
             ~SpriteRenderer();
 
             void setScale(float scaleX, float scaleY);
+            void setColor(const sf::Color& color);
+            void resetColor();
 
             const sf::Texture& getTexture() const;
             void setTextureRect(const sf::IntRect& rect);

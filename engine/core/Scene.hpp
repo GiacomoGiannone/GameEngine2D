@@ -30,7 +30,7 @@ namespace GE
         Camera& getCamera();
         const Camera& getCamera() const;
         void setCameraTarget(GameObject* gameObject);
-        void update(float deltaTime);
-        void render(Renderer& renderer);
+        virtual void update(float deltaTime);
+        virtual void render(Renderer& renderer);
     };
 }

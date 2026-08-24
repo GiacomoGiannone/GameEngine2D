@@ -113,4 +113,14 @@ namespace GE
     {
         sprite->setScale({scaleX, scaleY});
     }
+
+    void SpriteRenderer::setColor(const sf::Color& color)
+    {
+        sprite->setColor(color);
+    }
+
+    void SpriteRenderer::resetColor()
+    {
+        sprite->setColor(sf::Color::White);
+    }
 }

@@ -27,10 +27,10 @@ namespace GE
                     case '#':
                     {
                         //get a horizontal wall from PrefabFactory and add it to the scene
-                        GameObject* wall = PrefabFactory::create("Wall_1", x * 162.0f, y * 162.0f, 0);
+                        GameObject* wall = PrefabFactory::create("Wall_2", x * 81.0f, y * 81.0f, 0);
                         if (wall == nullptr)
                         {
-                            std::cout << "[LevelBuilder] Failed to create prefab Wall_1 at (" << x << ", " << y << ")" << std::endl;
+                            std::cout << "[LevelBuilder] Failed to create prefab Wall_2 at (" << x << ", " << y << ")" << std::endl;
                         }
                         scene->addGameObject(wall);
                         break;
@@ -39,10 +39,10 @@ namespace GE
                     case '.':
                     {
                         //get a floor from PrefabFactory and add it to the scene
-                        GameObject* floor = PrefabFactory::create("Floor_1", x * 162.0f, y * 162.0f, 0);
+                        GameObject* floor = PrefabFactory::create("Floor_2", x * 81.0f, y * 81.0f, 0);
                         if (floor == nullptr)
                         {
-                            std::cout << "[LevelBuilder] Failed to create prefab Floor_1 at (" << x << ", " << y << ")" << std::endl;
+                            std::cout << "[LevelBuilder] Failed to create prefab Floor_2 at (" << x << ", " << y << ")" << std::endl;
                         }
                         scene->addGameObject(floor);
                         break;
