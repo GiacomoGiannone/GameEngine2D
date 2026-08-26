@@ -5,7 +5,7 @@
 namespace GE
 {
     SpriteRenderer::SpriteRenderer(const std::string& textureId, const std::filesystem::path& texturePath, Transform& transform, int UpperCorner, int LowerCorner, int Width, int Height)
-        : texture(&TextureManager::getInstance().loadTexture(textureId, texturePath)), transform(transform), textureId(textureId)
+        : texture(&TextureManager::getInstance().loadTexture(textureId, texturePath)), transform(transform), textureId(textureId), textureOwned(false)
     {
         sprite = new sf::Sprite(*texture);
         sprite->setTexture(*texture);
@@ -22,7 +22,7 @@ namespace GE
     }
 
     SpriteRenderer::SpriteRenderer(Transform& transform, int UpperCorner, int LowerCorner, int Width, int Height)
-        : texture(nullptr), transform(transform), textureId("")
+        : texture(nullptr), transform(transform), textureId(""), textureOwned(true)
     {
         // Create a 1x1 placeholder texture so the sprite has a valid texture
         texture = new sf::Texture();
@@ -91,11 +91,15 @@ namespace GE
 
     SpriteRenderer::~SpriteRenderer()
     {
-        // Call the texture manager to unload the texture
+        // Release the TextureManager reference if one was loaded by this renderer
+        // (no-op for placeholder renderers, whose textureId is empty)
         TextureManager::getInstance().unloadTexture(textureId);
 
-        // If this renderer was created without a texture (placeholder), delete the placeholder texture
-        if (textureId.empty())
+        // Only delete a texture this renderer actually owns:
+        // - the placeholder 1x1 texture allocated by the default constructor, or
+        // - nothing if a TextureManager/SpriteSheet texture was assigned via setTexture
+        // (deleting an external texture would free a still-in-use GL texture -> crash)
+        if (textureOwned)
         {
             delete texture;
         }
@@ -105,6 +109,14 @@ namespace GE
 
     void SpriteRenderer::setTexture(sf::Texture& texture)
     {
+        //If we currently own a placeholder texture, release it before switching to the
+        //externally-managed texture (owned by TextureManager/SpriteSheet)
+        if (textureOwned)
+        {
+            delete this->texture;
+            textureOwned = false;
+        }
+
         this->texture = &texture;
         sprite->setTexture(texture);
     }

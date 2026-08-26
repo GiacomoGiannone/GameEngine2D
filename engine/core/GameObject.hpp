@@ -27,6 +27,10 @@ namespace GE
         int renderOrder;
         //not all game object are clickable
         bool isClickable;
+
+        //set to true by destroy(); the object is removed from the world at a safe time
+        bool destroyed = false;
+        std::string layerName; // Name of the layer this GameObject belongs to
     public:
         GameObject();
         GameObject(float x_position, float y_position, int renderOrder) : transform(), renderOrder(renderOrder), isClickable(false) { transform.setPosition(x_position, y_position); }
@@ -42,7 +46,10 @@ namespace GE
         const Transform& getTransform() const { return transform; }
         int getRenderOrder() const { return renderOrder; }
         void setRenderOrder(int order) { renderOrder = order; }
+        bool isDestroyed() const { return destroyed; }
         bool destroy();
+        void setLayerName(const std::string& name) { layerName = name; }
+        const std::string& getLayerName() const { return layerName; }
 
         template<typename T, typename... Args>
         T& addComponent(Args&&... args)

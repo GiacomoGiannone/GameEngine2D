@@ -21,6 +21,7 @@
 #include "Core/Level.hpp"
 #include "core/Light.hpp"
 #include "core/LightingSystem.hpp"
+#include "GameSpecificLibs/EnemyManager.hpp"
 
 class MainScene : public GE::Scene
 {
@@ -77,7 +78,9 @@ public:
             35.0f, // width of the collision box
             70.0f  // height of the collision box
         );
+        characterController.setControlledByPlayer(true);
         characterController.setRollSpeed(85.0f); // Set the roll speed 
+        characterController.addIgnoredLayer("SkeletonEnemy"); // Ignore collisions with SkeletonEnemy layer
         //get the character controller to print debug info
         player->getComponentOfType<GE::CharacterController>().setDebugPrint(false);
         //set this variable to true to enable Y movement with W and S keys
@@ -213,8 +216,10 @@ public:
         ///////////////////////////////////////////////////////////////////////////////////////////
                                 /*CREATE ANIMATION CLIPS*/
 
-        float runAnimationFrameDuration = 0.07f; // Set the frame duration for run animations
-        float walkAnimationFrameDuration = 0.07f; // Set the frame duration for walk animations
+        float runAnimationFrameDuration = 0.05f; // Set the frame duration for run animations
+        float walkAnimationFrameDuration = 0.05f; // Set the frame duration for walk animations
+
+        float runSpeedMultiplier = 1.8f; // Set the speed multiplier for run animations
 
         auto Player_Down_Attack_1_SpriteSheet_clip = Player_Down_Attack_1_SpriteSheet->createClip(
             {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17}, // Frame indices for attack animation
@@ -256,7 +261,7 @@ public:
             runAnimationFrameDuration, // Frame duration
             true, // Loop the animation
             GE::PlaybackMode::Forward,
-            1.5f // Set movement multiplier to faster speed for run animation
+            runSpeedMultiplier // Set movement multiplier to faster speed for run animation
         );
 
         auto Player_Down_Walk_SpriteSheet_clip = Player_Down_Walk_SpriteSheet->createClip(
@@ -309,7 +314,7 @@ public:
             runAnimationFrameDuration, // Frame duration
             true, // Loop the animation
             GE::PlaybackMode::Forward,
-            1.5f // Set movement multiplier to faster speed for run animation
+            runSpeedMultiplier // Set movement multiplier to faster speed for run animation
         );
 
         auto Player_Right_Walk_SpriteSheet_clip = Player_Right_Walk_SpriteSheet->createClip(
@@ -362,7 +367,7 @@ public:
             runAnimationFrameDuration, // Frame duration
             true, // Loop the animation
             GE::PlaybackMode::Forward,
-            1.5f // Set movement multiplier to faster speed for run animation
+            runSpeedMultiplier // Set movement multiplier to faster speed for run animation
         );
 
         auto Player_Up_Walk_SpriteSheet_clip = Player_Up_Walk_SpriteSheet->createClip(
@@ -416,7 +421,7 @@ public:
             runAnimationFrameDuration, // Frame duration
             true, // Loop the animation
             GE::PlaybackMode::Forward,
-            1.5f // Set movement multiplier to faster speed for run animation
+            runSpeedMultiplier // Set movement multiplier to faster speed for run animation
         );
 
         auto Player_Left_Walk_SpriteSheet_clip = Player_Left_Walk_SpriteSheet->createClip(
@@ -1818,11 +1823,38 @@ public:
 
         //get the camera and set a larger viewport size to see more of the scene
         getCamera().setViewportSize(800, 600);
+
+        //spawn some enemies
+        // GE::EnemyManager::getInstance()->spawn(400, 400, 50);
+        // GE::EnemyManager::getInstance()->spawn(1150, 400, 50);
+
+        int numEnemies = 20;
+        for (int i = 0; i < numEnemies; ++i)
+        {
+            float x = static_cast<float>(rand() % 1600); // Random x position within the scene width
+            float y = static_cast<float>(rand() % 1200); // Random y position within the scene height
+            GE::EnemyManager::getInstance()->spawn(x, y, 50);
+        }
+
+        //register the spawned enemies with the scene so they are updated and rendered.
+        //(They cannot be added by EnemyManager::spawn itself because the scene is not yet
+        //assigned to the engine while this constructor runs.)
+        for (GE::GameObject* enemy : GE::EnemyManager::getInstance()->getEnemies())
+        {
+            addGameObject(enemy);
+            if (enemy->hasComponentOfType<GE::CharacterController>())
+            {
+                enemy->getComponentOfType<GE::CharacterController>().setWorldObjects(&getGameObjects());
+            }
+        }
     }
 
     void update(float deltaTime) override
     {
         GE::Scene::update(deltaTime);
+
+        //remove dead enemies from the scene/manager (Hittable marks them via destroy())
+        GE::EnemyManager::getInstance()->cleanupDestroyed();
 
         playerLight.setPosition({player->getX(), player->getY()});
         lightingSystem.update(getGameObjects());

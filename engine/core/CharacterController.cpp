@@ -105,6 +105,14 @@ namespace GE
                 continue;
             }
 
+            for(auto& ignoredLayer : IgnoredLayers)
+            {
+                if(gameObject->getLayerName() == ignoredLayer)
+                {
+                    continue;
+                }
+            }
+
             const CollisionBox* objBox = nullptr;
             if (!getCollisionBox(gameObject, objBox))
             {
@@ -198,7 +206,7 @@ namespace GE
         {
             velocity = rollVelocity;
         }
-        else
+        else if (ControlledByPlayer)
         {
             const bool leftPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A);
             const bool rightPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D);
@@ -235,8 +243,47 @@ namespace GE
                 }
             }
         }
+        else
+        {
+            const bool hasHorizontal = std::abs(moveIntent.x) > 0.1f;
+            const bool hasVertical = Y_movement_enabled &&
+                                    std::abs(moveIntent.y) > 0.1f;
 
-        if (!Y_movement_enabled && onGround && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
+            // Movimento X
+            if (hasHorizontal)
+            {
+                velocity.x = moveIntent.x * speed * movementMultiplier;
+            }
+
+            // Movimento Y
+            if (hasVertical)
+            {
+                velocity.y = moveIntent.y * speed * movementMultiplier;
+            }
+
+            // La direzione dell'animazione viene scelta separatamente
+            if (hasHorizontal || hasVertical)
+            {
+                if (std::abs(moveIntent.x) > std::abs(moveIntent.y))
+                {
+                    // Movimento prevalentemente orizzontale
+                    if (moveIntent.x < 0.0f)
+                        facingDirection = -1; // Left
+                    else
+                        facingDirection = 1;  // Right
+                }
+                else
+                {
+                    // Movimento prevalentemente verticale
+                    if (moveIntent.y < 0.0f)
+                        facingDirection = 2;  // Up
+                    else
+                        facingDirection = -2; // Down
+                }
+            }
+        }
+
+        if (ControlledByPlayer && !Y_movement_enabled && onGround && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
         {
             velocity.y = jumpVelocity;
             onGround = false;
@@ -350,10 +397,13 @@ namespace GE
             // Cattura la direzione di movimento corrente (WASD attivi in quel momento)
             sf::Vector2f dir(0.0f, 0.0f);
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) dir.x -= 1.0f;
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) dir.x += 1.0f;
-            if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) dir.y -= 1.0f;
-            if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) dir.y += 1.0f;
+            if (ControlledByPlayer)
+            {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) dir.x -= 1.0f;
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) dir.x += 1.0f;
+                if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) dir.y -= 1.0f;
+                if (Y_movement_enabled && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) dir.y += 1.0f;
+            }
 
             // Se non si sta premendo nulla, usa la direzione verso cui il personaggio è rivolto
             if (dir.x == 0.0f && dir.y == 0.0f)

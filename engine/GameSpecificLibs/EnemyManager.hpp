@@ -15,6 +15,8 @@ namespace GE
         static void addEnemy(GameObject* enemy);
         static void removeEnemy(GameObject* enemy);
         static std::vector<GameObject*> getEnemies();
+        //remove from the scene and delete every enemy flagged with destroy() (dead enemies)
+        static void cleanupDestroyed();
         static EnemyManager* getInstance()
         {
             if (!instance)
@@ -23,12 +25,13 @@ namespace GE
             }
             return instance;
         }
+        bool spawn(float x, float y, int renderOrder);
     private:
         static std::vector<GameObject*> enemies;
         //singleton pattern
         EnemyManager() = default;
         EnemyManager(const EnemyManager&) = delete;
         EnemyManager& operator=(const EnemyManager&) = delete;
-        EnemyManager* instance = nullptr;
+        static EnemyManager* instance;
     };
 }

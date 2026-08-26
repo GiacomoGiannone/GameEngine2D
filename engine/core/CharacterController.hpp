@@ -40,11 +40,14 @@ namespace GE
         //if Y_movement_enabled is true, you can move the character up and down with the W and S keys, 
         //otherwise the character can only move left and right with the A and D keys
         bool Y_movement_enabled = false;
+        bool ControlledByPlayer = false;
+        sf::Vector2f moveIntent{0.0f, 0.0f};
         Animator* animator = nullptr;
         int facingDirection = 1; // 1 for right, -1 for left
         bool isRollLocked = false; // Flag to lock rolling for a short duration
         sf::Vector2f rollVelocity{0.0f, 0.0f}; // Store the velocity during roll
         float rollSpeed = 300.0f; // Speed during roll
+        std::vector<std::string> IgnoredLayers; // Layers to ignore during collision detection
 
         static bool getCollisionBox(const GE::GameObject* gameObject, const GE::CollisionBox*& outBox);
 
@@ -71,6 +74,11 @@ namespace GE
         void setBoxCollider(float width, float height) { setRectangleShape(width, height); }
         void setCircleCollider(float radius) { setCircleShape(radius); }
         void setConvexCollider(const std::vector<sf::Vector2f>& points) { setConvexShape(points); }
+        void setControlledByPlayer(bool controlled) { ControlledByPlayer = controlled; }
+        bool isControlledByPlayer() const { return ControlledByPlayer; }
+        void setMoveIntent(const sf::Vector2f& intent) { moveIntent = intent; }
+        const sf::Vector2f& getMoveIntent() const { return moveIntent; }
+        void clearMoveIntent() { moveIntent = {0.0f, 0.0f}; }
         void setYMovementEnabled(bool enabled) { Y_movement_enabled = enabled; }
         bool isYMovementEnabled() const { return Y_movement_enabled; }
         bool isMoving() const { return std::abs(velocity.x) > 0.1f || std::abs(velocity.y) > 0.1f; }
@@ -83,7 +91,10 @@ namespace GE
         void unlockRollMovement();
         bool getIsRollLocked() const { return isRollLocked; }
         void setRollSpeed(float speed) { rollSpeed = speed; }
-        
+
+        void addIgnoredLayer(const std::string& layerName) { IgnoredLayers.push_back(layerName); }
+        const std::vector<std::string>& getIgnoredLayers() const { return IgnoredLayers; }
+
         virtual ~CharacterController() = default;
 
         void setWorldObjects(const std::vector<GE::GameObject*>* gameObjects);

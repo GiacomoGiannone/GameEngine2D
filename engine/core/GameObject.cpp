@@ -23,8 +23,10 @@ namespace GE
 
     bool GameObject::destroy()
     {
-        // Destroy all components
-        components.clear();
+        //Mark the object as destroyed. The actual cleanup (removal from the scene and
+        //deletion) is done later, outside the component/update loop. Clearing components
+        //here would destroy components while they are still being updated (use-after-free).
+        destroyed = true;
         return true;
     }
 }

@@ -20,6 +20,9 @@ namespace GE
             Transform& transform;
             const std::string textureId;
             sf::Sprite* sprite;
+            //true when this renderer allocated its own placeholder texture and therefore owns it;
+            //false when the texture belongs to the TextureManager/SpriteSheet (set via setTexture)
+            bool textureOwned;
         public:
             SpriteRenderer() = default;
             SpriteRenderer(const std::string& textureId, const std::filesystem::path& texturePath, 
