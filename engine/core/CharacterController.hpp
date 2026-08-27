@@ -6,11 +6,11 @@
 #include <vector>
 
 #include "core/Component.hpp"
+#include "core/CollisionBox.hpp"
 
 namespace GE
 {
     class GameObject;
-    class CollisionBox;
     class Animator;
 }
 
@@ -59,7 +59,7 @@ namespace GE
         void setConvexShape(const std::vector<sf::Vector2f>& points);
 
         //we give the character controller a predefined rectangle shape to check for collisions with other game objects
-        sf::RectangleShape collisionBox;
+        GE::CollisionBox collisionBox;
         //alternatively, we can declare other shapes like sf::CircleShape or sf::ConvexShape for more complex collision detection
         sf::CircleShape collisionCircle;
         sf::ConvexShape collisionConvex;

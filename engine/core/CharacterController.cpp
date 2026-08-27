@@ -105,12 +105,19 @@ namespace GE
                 continue;
             }
 
-            for(auto& ignoredLayer : IgnoredLayers)
+            //skip objects on ignored layers
+            bool isIgnored = false;
+            for(const auto& ignoredLayer : IgnoredLayers)
             {
                 if(gameObject->getLayerName() == ignoredLayer)
                 {
-                    continue;
+                    isIgnored = true;
+                    break;
                 }
+            }
+            if (isIgnored)
+            {
+                continue;
             }
 
             const CollisionBox* objBox = nullptr;
@@ -302,6 +309,21 @@ namespace GE
                 continue;
             }
 
+            //skip objects on ignored layers
+            bool isIgnored = false;
+            for (const auto& ignoredLayer : IgnoredLayers)
+            {
+                if (gameObject->getLayerName() == ignoredLayer)
+                {
+                    isIgnored = true;
+                    break;
+                }
+            }
+            if (isIgnored)
+            {
+                continue;
+            }
+
             const CollisionBox* objBox = nullptr;
             if (!getCollisionBox(gameObject, objBox))
             {
@@ -346,6 +368,21 @@ namespace GE
         for (const auto& gameObject : gameObjects)
         {
             if (gameObject == owner)
+            {
+                continue;
+            }
+
+            //skip objects on ignored layers
+            bool isIgnored = false;
+            for (const auto& ignoredLayer : IgnoredLayers)
+            {
+                if (gameObject->getLayerName() == ignoredLayer)
+                {
+                    isIgnored = true;
+                    break;
+                }
+            }
+            if (isIgnored)
             {
                 continue;
             }
