@@ -10,6 +10,7 @@ namespace GE
           view(sf::FloatRect({0.0f, 0.0f}, {800.0f, 600.0f}))
     {
         syncView();
+        uiView = sf::View(sf::FloatRect({0.0f, 0.0f}, {800.0f, 600.0f}));
     }
 
     Camera::Camera(float x, float y, float z)
@@ -17,6 +18,7 @@ namespace GE
           view(sf::FloatRect({0.0f, 0.0f}, {800.0f, 600.0f}))
     {
         syncView();
+        uiView = sf::View(sf::FloatRect({0.0f, 0.0f}, {800.0f, 600.0f}));
     }
 
     void Camera::setPosition(float x, float y)

@@ -11,11 +11,14 @@ namespace GE
     private:
         //use a sf::RectangleShape to represent the collision box
         sf::RectangleShape box;
+        bool debugPrint = false; // Set to true to enable debug rendering of the collision box
     public:
         CollisionBox() = default;
         CollisionBox(float width, float height) : box(sf::Vector2f(width, height)) {}
         float getWidth() const { return box.getSize().x; }
         float getHeight() const { return box.getSize().y; }
+
+        void setDebugPrint(bool value) { debugPrint = value; }
 
         void setSize(float width, float height) { box.setSize(sf::Vector2f(width, height)); }
         void setSize(const sf::Vector2f& size) { box.setSize(size); }

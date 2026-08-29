@@ -6,9 +6,30 @@
 #include "Engine.hpp"
 #include "Hittable.hpp"
 #include "CollisionBox.hpp"
+#include "CharacterController.hpp"
 
 namespace GE
 {
+    static bool getTargetSize(const GameObject* gameObject, float& outWidth, float& outHeight)
+    {
+        if (gameObject->hasComponentOfType<CollisionBox>())
+        {
+            const CollisionBox& box = gameObject->getComponentOfType<CollisionBox>();
+            outWidth = box.getWidth();
+            outHeight = box.getHeight();
+            return true;
+        }
+
+        if (gameObject->hasComponentOfType<CharacterController>())
+        {
+            const CharacterController& controller = gameObject->getComponentOfType<CharacterController>();
+            outWidth = controller.getWidth();
+            outHeight = controller.getHeight();
+            return true;
+        }
+
+        return false;
+    }
     void Attack::execute(int direction)
     {
         //spawn a collision box in front of the owner game object, with the specified range and damage
@@ -77,40 +98,28 @@ namespace GE
         //3. Check for collisions with objects that have the component Hittable
         for (const auto& gameObject : gameObjects)
         {
-            if (gameObject == owner) continue; // Skip the owner
+            if (gameObject == owner) continue;
 
             if (gameObject->hasComponentOfType<Hittable>())
             {
                 Hittable& hittable = gameObject->getComponentOfType<Hittable>();
 
-                // Check if the hittable object has a CollisionBox component
-                if (gameObject->hasComponentOfType<CollisionBox>())
+                float targetW = 0.0f, targetH = 0.0f;
+                if (getTargetSize(gameObject, targetW, targetH))
                 {
-                    CollisionBox& hittableCollisionBox = gameObject->getComponentOfType<CollisionBox>();
-
-                    // Check for collision between the two rectangles
-                    // Use sf::FloatRect for the attack box (derived from sf::RectangleShape)
                     sf::FloatRect attackBounds = collisionBox.getGlobalBounds();
 
-                    // Reconstruct a FloatRect from the CollisionBox's position and size
-                    // The CollisionBox uses sf::RectangleShape internally but doesn't expose getGlobalBounds directly
-                    // We need to get the GameObject's position and use the CollisionBox's width/height
                     float targetX = gameObject->getX();
                     float targetY = gameObject->getY();
-                    float targetW = hittableCollisionBox.getWidth();
-                    float targetH = hittableCollisionBox.getHeight();
 
-                    // Build the target's bounding rect centered on its position
                     sf::FloatRect targetBounds(
                         sf::Vector2f(targetX - targetW / 2.0f, targetY - targetH / 2.0f),
                         sf::Vector2f(targetW, targetH)
                     );
 
-                    // Use findIntersection for SFML 3 compatibility
                     if (attackBounds.findIntersection(targetBounds))
                     {
-                        // Apply damage to the target
-                        if(hittable.getInvincible())
+                        if (hittable.getInvincible())
                         {
                             std::cout << "Target is invincible! No damage applied." << std::endl;
                         }
@@ -118,6 +127,7 @@ namespace GE
                         {
                             hittable.takeDamage(damage);
                             std::cout << "Hit object! Damage applied: " << damage << std::endl;
+                            std::cout << "Target health: " << hittable.getHealth() << "/" << hittable.getMaxHealth() << std::endl;
                         }
                     }
                 }

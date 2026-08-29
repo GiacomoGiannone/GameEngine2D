@@ -20,6 +20,7 @@ namespace GE
         // Which GameObject the camera should follow (if any).
         const GE::GameObject* target;
         sf::View view;
+        sf::View uiView; // Separate view for UI elements, not affected by camera movement or zoom.
 
         void syncView();
         // Keep the logical 800x600 aspect ratio by letterboxing the viewport.
@@ -41,6 +42,7 @@ namespace GE
         const GE::GameObject* getTarget() const { return target; }
         void setTarget(const GE::GameObject* obj) { target = obj; }
         void setViewportSize(int width, int height) { view.setSize(sf::Vector2f(static_cast<float>(width), static_cast<float>(height))); }
+        sf::View& getUiView() { return uiView; }
 
         // Follow the target (if set) and keep the SFML view in sync.
         void update(float deltaTime);

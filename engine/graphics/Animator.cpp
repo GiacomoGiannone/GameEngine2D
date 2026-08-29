@@ -19,7 +19,6 @@ namespace GE
 
     void Animator::play(const std::string& name)
     {
-        std::cout << "[Animator] play request: " << name << std::endl;
         auto it = animations.find(name);
         if(it == animations.end())
         {
@@ -59,9 +58,7 @@ namespace GE
         }
 
         spriteRenderer.setTexture(*animation.texture);
-    std::cout << "[Animator] texture set for: " << name << ", frames: " << animation.frames.size() << std::endl;
         spriteRenderer.setTextureRect(animation.frames[currentFrame]);
-    std::cout << "[Animator] initial frame rect set for: " << name << ", frame: " << currentFrame << std::endl;
 
         // NUOVO: controlla ed esegui eventuali eventi sul frame iniziale
         for(auto& event : animation.events)
@@ -96,8 +93,6 @@ namespace GE
 
                 if(shouldTransition)
                 {
-                    std::cout << "[Animator] transition triggered: " << transition.fromAnimation
-                              << " -> " << transition.toAnimation << std::endl;
                     play(transition.toAnimation);
                     break;
                 }

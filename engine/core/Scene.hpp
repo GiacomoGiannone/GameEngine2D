@@ -9,6 +9,7 @@ namespace GE
 {
     class GameObject;
     class Renderer;
+    class UI_Element;
 }
 
 namespace GE
@@ -17,6 +18,7 @@ namespace GE
     {
     private:
         std::vector<GameObject*> gameObjects;
+        std::vector<UI_Element*> uiElements;
         std::string name;
         Camera camera;
     public:
@@ -32,5 +34,7 @@ namespace GE
         void setCameraTarget(GameObject* gameObject);
         virtual void update(float deltaTime);
         virtual void render(Renderer& renderer);
+        void renderUI(Renderer& renderer);
+        void addUIElement(UI_Element* uiElement) { uiElements.push_back(uiElement); }
     };
 }

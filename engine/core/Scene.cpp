@@ -1,6 +1,7 @@
 #include "Scene.hpp"
 #include "GameObject.hpp"
 #include "graphics/Renderer.hpp"
+#include "core/UI_Element.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -61,6 +62,11 @@ namespace GE
             gameObject->update(deltaTime);
         }
 
+        for (auto& uiElement : uiElements)
+        {
+            uiElement->Update(deltaTime);   // <-- aggiungi
+        }
+
         camera.update(deltaTime);
     }
 
@@ -75,6 +81,18 @@ namespace GE
         for (auto& gameObject : gameObjects)
         {
             gameObject->render(renderer);
+        }
+
+        renderUI(renderer);
+    }
+
+    void Scene::renderUI(Renderer& renderer)
+    {
+        // Render UI elements using the UI view
+        renderer.setView(camera.getUiView());
+        for (auto& uiElement : uiElements)
+        {
+            uiElement->Render(renderer);
         }
     }
 }

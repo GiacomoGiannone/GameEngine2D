@@ -18,7 +18,7 @@ namespace GE
         float stopDistance = 40.0f;
 
         float decisionTimer = 0.0f;
-        float decisionInterval = 0.5f; // Time interval between decisions
+        float decisionInterval = 1.0f; // Time interval between decisions
 
         GameObject* findPlayerTarget() const;
 

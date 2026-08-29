@@ -49,6 +49,8 @@ namespace GE
         float rollSpeed = 300.0f; // Speed during roll
         std::vector<std::string> IgnoredLayers; // Layers to ignore during collision detection
 
+        bool isFacingLocked = false; // Flag to lock facing direction during roll
+
         static bool getCollisionBox(const GE::GameObject* gameObject, const GE::CollisionBox*& outBox);
 
         //collision detection helper functions
@@ -86,11 +88,17 @@ namespace GE
         int getFacingDirection() const { return facingDirection; } // 1 for right, -1 for left, 2 for up, -2 for down
         void roll(); //this function reduces the hitbox of the character controller to half of its height 
         void resetHitbox() { setRectangleShape(width, originalHeight); } //this function resets the hitbox of the character controller to its original height
+        float getWidth() const { return width; }
+        float getHeight() const { return height; }
 
         void lockRollMovement();
         void unlockRollMovement();
         bool getIsRollLocked() const { return isRollLocked; }
         void setRollSpeed(float speed) { rollSpeed = speed; }
+        
+        bool isFacingLocked() const { return isFacingLocked; }
+        void lockFacing() { isFacingLocked = true; }
+        void unlockFacing() { isFacingLocked = false; }
 
         void addIgnoredLayer(const std::string& layerName) { IgnoredLayers.push_back(layerName); }
         const std::vector<std::string>& getIgnoredLayers() const { return IgnoredLayers; }
