@@ -34,6 +34,11 @@ namespace GE
     {
         //spawn a collision box in front of the owner game object, with the specified range and damage
         //if debugPrint is true, draw the collision box
+        if(isOnCooldown())
+        {
+            std::cout << "Attack is on cooldown. Cannot execute." << std::endl;
+            return;
+        }
 
         //get a random number to simulate the ID to prevent multiple attacks from the same attack component from colliding with the same target
         attackID = rand() % 100000;
@@ -133,6 +138,8 @@ namespace GE
                 }
             }
         }
+
+        cooldownTimer = cooldown; 
     }
 
     void Attack::render(Renderer& renderer)
@@ -147,6 +154,16 @@ namespace GE
 
     void Attack::update(float deltaTime)
     {
+    // Fai scendere il cooldown ogni frame, indipendentemente da isActive
+        if (cooldownTimer > 0.0f)
+        {
+            cooldownTimer -= deltaTime;
+            if (cooldownTimer < 0.0f)
+            {
+                cooldownTimer = 0.0f;
+            }
+        }
+
         if (!isActive)
             return;
 

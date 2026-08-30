@@ -96,7 +96,7 @@ namespace GE
         bool getIsRollLocked() const { return isRollLocked; }
         void setRollSpeed(float speed) { rollSpeed = speed; }
         
-        bool isFacingLocked() const { return isFacingLocked; }
+        bool getIsFacingLocked() const { return isFacingLocked; }
         void lockFacing() { isFacingLocked = true; }
         void unlockFacing() { isFacingLocked = false; }
 

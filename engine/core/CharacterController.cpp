@@ -228,12 +228,12 @@ namespace GE
                 if (upPressed && !downPressed)
                 {
                     velocity.y -= speed * movementMultiplier;
-                    if(!isFacingLocked()) facingDirection = 2;
+                    if(!getIsFacingLocked()) facingDirection = 2;
                 }
                 else if (downPressed && !upPressed)
                 {
                     velocity.y += speed * movementMultiplier;
-                    if(!isFacingLocked()) facingDirection = -2;
+                    if(!getIsFacingLocked()) facingDirection = -2;
                 }
             }
             else if (leftPressed || rightPressed)
@@ -241,12 +241,12 @@ namespace GE
                 if (leftPressed && !rightPressed)
                 {
                     velocity.x -= speed * movementMultiplier;
-                    if(!isFacingLocked()) facingDirection = -1;
+                    if(!getIsFacingLocked()) facingDirection = -1;
                 }
                 else if (rightPressed && !leftPressed)
                 {
                     velocity.x += speed * movementMultiplier;
-                    if(!isFacingLocked()) facingDirection = 1;
+                    if(!getIsFacingLocked()) facingDirection = 1;
                 }
             }
         }

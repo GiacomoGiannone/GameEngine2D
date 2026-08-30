@@ -11,6 +11,7 @@ namespace GE
             float damage;
             float range;
             float cooldown;
+            float cooldownTimer{0.0f};
             //collision box for the attack, will be spawned in front of the owner game object
             sf::RectangleShape collisionBox;
             bool debugPrint{false};
@@ -25,6 +26,7 @@ namespace GE
             float getRange() const { return range; }
             float getCooldown() const { return cooldown; }
             int getAttackID() const { return attackID; }
+            bool isOnCooldown() const { return cooldownTimer > 0.0f; }
 
             void update(float deltaTime) override;
             void render(Renderer& renderer) override;

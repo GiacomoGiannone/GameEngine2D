@@ -44,6 +44,8 @@ public:
 
         setCameraTarget(player);
 
+        lightingSystem.addLight(playerLight);
+
         //instatiate a levelLoader
         GE::Level level = GE::LevelLoader::load("assets/Levels/CastleLevel/Layout.txt");
 

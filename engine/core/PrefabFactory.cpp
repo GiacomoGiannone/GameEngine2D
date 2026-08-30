@@ -14,6 +14,7 @@
 #include "Core/Scene.hpp"
 #include "Core/Input.hpp"
 #include "GameSpecificLibs/Chest.hpp"
+#include "core/UpAttack.hpp"
 
 #include <cmath>
 #include <utility>
@@ -110,7 +111,7 @@ namespace GE
             sf::Vector2f heavyAttackCollisionBox(60.0f, 90.0f); //width, height
             skeletonEnemy->addComponent<GE::HeavyAttack>(15.0f, 7.0f, heavyAttackCollisionBox); //damage, cooldown, collision box
             //make the skeleton damageable by the player's attacks
-            skeletonEnemy->addComponent<GE::Hittable>(50.0f); //health
+            skeletonEnemy->addComponent<GE::Hittable>(35.0f); //health
 
             //print debug the attack collision
             skeletonEnemy->getComponentOfType<GE::LightAttack>().setDebugPrint(true);
@@ -395,28 +396,35 @@ namespace GE
                 //heavy attack wins when the target is inside both ranges (mirrors right vs left click).
                 animator.addTransition(
                     walkName, attack2Name,
-                    [controllerPtr, isTargetWithinRange, heavyAttackRange, facing = direction.second]() {
-                        return isTargetWithinRange(heavyAttackRange) && controllerPtr->getFacingDirection() == facing;
+                    [enemyPtr, controllerPtr, isTargetWithinRange, heavyAttackRange, facing = direction.second]() {
+                        return isTargetWithinRange(heavyAttackRange) 
+                            && controllerPtr->getFacingDirection() == facing
+                            && !enemyPtr->getComponentOfType<GE::HeavyAttack>().isOnCooldown();   // <-- aggiungi
                     }
                 );
                 animator.addTransition(
                     idleName, attack2Name,
-                    [controllerPtr, isTargetWithinRange, heavyAttackRange, facing = direction.second]() {
-                        return isTargetWithinRange(heavyAttackRange) && controllerPtr->getFacingDirection() == facing;
+                    [enemyPtr, controllerPtr, isTargetWithinRange, heavyAttackRange, facing = direction.second]() {
+                        return isTargetWithinRange(heavyAttackRange) 
+                            && controllerPtr->getFacingDirection() == facing
+                            && !enemyPtr->getComponentOfType<GE::HeavyAttack>().isOnCooldown();   // <-- aggiungi
                     }
                 );
 
-                //walk/idle to attack1 (light, longer range than the heavy attack)
                 animator.addTransition(
                     walkName, attack1Name,
-                    [controllerPtr, isTargetWithinRange, lightAttackRange, facing = direction.second]() {
-                        return isTargetWithinRange(lightAttackRange) && controllerPtr->getFacingDirection() == facing;
+                    [enemyPtr, controllerPtr, isTargetWithinRange, lightAttackRange, facing = direction.second]() {
+                        return isTargetWithinRange(lightAttackRange) 
+                            && controllerPtr->getFacingDirection() == facing
+                            && !enemyPtr->getComponentOfType<GE::LightAttack>().isOnCooldown();   // <-- aggiungi
                     }
                 );
                 animator.addTransition(
                     idleName, attack1Name,
-                    [controllerPtr, isTargetWithinRange, lightAttackRange, facing = direction.second]() {
-                        return isTargetWithinRange(lightAttackRange) && controllerPtr->getFacingDirection() == facing;
+                    [enemyPtr, controllerPtr, isTargetWithinRange, lightAttackRange, facing = direction.second]() {
+                        return isTargetWithinRange(lightAttackRange) 
+                            && controllerPtr->getFacingDirection() == facing
+                            && !enemyPtr->getComponentOfType<GE::LightAttack>().isOnCooldown();   // <-- aggiungi
                     }
                 );
 
@@ -695,6 +703,10 @@ namespace GE
             player->getComponentOfType<GE::HeavyAttack>().setDebugPrint(true);
             player->addComponent<GE::Hittable>(100.0f); //add hittable component to player with 100 health
 
+            sf::Vector2f UpwardAttackCollisionBox(20.0f, 80.0f); //width, height
+            player->addComponent<GE::UpAttack>(15.0f, 1.5f, UpwardAttackCollisionBox); //damage, cooldown, collision box, id
+            player->getComponentOfType<GE::UpAttack>().setDebugPrint(true);
+
             ///////////////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////////////
@@ -703,6 +715,8 @@ namespace GE
 
             float runAnimationFrameDuration = 0.05f; // Set the frame duration for run animations
             float walkAnimationFrameDuration = 0.05f; // Set the frame duration for walk animations
+            float rollAnimationFrameDuration = 0.04f; // Set the frame duration for roll animations
+            float heavyAttackAnimationFrameDuration = 0.04f; // Set the frame duration for heavy attack animations
 
             float runSpeedMultiplier = 1.8f; // Set the speed multiplier for run animations
 
@@ -717,7 +731,7 @@ namespace GE
             auto Player_Down_Attack_2_SpriteSheet_clip = Player_Down_Attack_2_SpriteSheet->createClip(
                 {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
                 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41}, // Frame indices for second attack animation
-                0.05f, // Frame duration
+                heavyAttackAnimationFrameDuration, // Frame duration
                 false, // Do not loop the animation
                 GE::PlaybackMode::Forward,
                 0.5f // Set movement multiplier to 0.5 for second attack animation
@@ -735,7 +749,7 @@ namespace GE
                 {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
                 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
                 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55}, // Frame indices for roll animation till 55
-                0.05f, // Frame duration
+                rollAnimationFrameDuration, // Frame duration
                 false, // Do not loop the animation
                 GE::PlaybackMode::Forward,
                 1.0f // Set movement multiplier to normal speed for roll animation
@@ -769,7 +783,7 @@ namespace GE
                 {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
                 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
                 33, 34, 35, 36, 37, 38, 39, 40, 41,}, // Frame indices for second attack animation
-                0.05f, // Frame duration
+                heavyAttackAnimationFrameDuration, // Frame duration
                 false, // Do not loop the animation
                 GE::PlaybackMode::Forward,
                 0.5f // Set movement multiplier to slower speed for second attack animation
@@ -788,7 +802,7 @@ namespace GE
                 {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
                 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
                 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55}, // Frame indices for roll animation till frame index of the last frame till 55
-                0.05f, // Frame duration
+                rollAnimationFrameDuration, // Frame duration
                 false, // Do not loop the animation
                 GE::PlaybackMode::Forward,
                 1.0f // Set movement multiplier to normal speed for roll animation
@@ -822,7 +836,7 @@ namespace GE
                 {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
                 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
                 33, 34, 35, 36, 37, 38, 39, 40, 41}, // Frame indices for second attack animation
-                0.05f, // Frame duration
+                heavyAttackAnimationFrameDuration, // Frame duration
                 false, // Do not loop the animation
                 GE::PlaybackMode::Forward,
                 0.5f // Set movement multiplier to slower speed for second attack animation
@@ -841,7 +855,7 @@ namespace GE
                 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
                 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
                 48, 49, 50, 51, 52, 53, 54, 55}, // Frame indices for roll animation till 55
-                0.05f, // Frame duration
+                rollAnimationFrameDuration, // Frame duration
                 false, // Do not loop the animation
                 GE::PlaybackMode::Forward,
                 1.0f // Set movement multiplier to normal speed for roll animation
@@ -876,7 +890,7 @@ namespace GE
                 {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
                 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
                 33, 34, 35, 36, 37, 38, 39, 40, 41}, // Frame indices for second attack animation
-                0.05f, // Frame duration
+                heavyAttackAnimationFrameDuration, // Frame duration
                 false, // Do not loop the animation
                 GE::PlaybackMode::Forward,
                 0.5f // Set movement multiplier to slower speed for second attack animation
@@ -895,7 +909,7 @@ namespace GE
                 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
                 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
                 50, 51, 52, 53, 54, 55}, // Frame indices for roll animation
-                0.05f, // Frame duration
+                rollAnimationFrameDuration, // Frame duration
                 false, // Do not loop the animation
                 GE::PlaybackMode::Forward,
                 1.0f // Set movement multiplier to normal speed for roll animation
@@ -923,21 +937,41 @@ namespace GE
             ///////////////////////////////////////////////////////////////////////////////////////////
                                         /*ADD EVENTS TO ANIMATION CLIPS*/
 
+            Player_Down_Attack_1_SpriteSheet_clip.events.push_back({0,0, 
+                [&]() 
+                {
+                    characterController.lockFacing();
+                }});
             Player_Down_Attack_1_SpriteSheet_clip.events.push_back({8,8, 
                 [playerPtr, controllerPtr]() 
                 {
                 // Execute attack logic when the last frame of the attack animation is reached
-                playerPtr->getComponentOfType<GE::LightAttack>().execute(controllerPtr->getFacingDirection());
+                playerPtr->getComponentOfType<GE::UpAttack>().execute(controllerPtr->getFacingDirection());
+                }});
+            Player_Down_Attack_1_SpriteSheet_clip.events.push_back({17,17, 
+                [&]() 
+                {
+                    characterController.unlockFacing();
                 }});
             
+            Player_Down_Attack_2_SpriteSheet_clip.events.push_back({0,0, 
+                [&]() 
+                {
+                    characterController.lockFacing();
+                }});
             Player_Down_Attack_2_SpriteSheet_clip.events.push_back({16,16, 
                 [playerPtr, controllerPtr]() 
                 {
                 // Execute heavy attack logic
                 playerPtr->getComponentOfType<GE::HeavyAttack>().execute(controllerPtr->getFacingDirection());
                 }});
+            Player_Down_Attack_2_SpriteSheet_clip.events.push_back({41,41, 
+                [&]() 
+                {
+                    characterController.unlockFacing();
+                }});
             
-            Player_Down_Roll_SpriteSheet_clip.events.push_back({10,40, 
+            Player_Down_Roll_SpriteSheet_clip.events.push_back({0,45, 
                 [playerPtr]() 
                 {
                 // Execute roll logic
@@ -951,7 +985,7 @@ namespace GE
                 controllerPtr->lockRollMovement();
                 }});
             
-            Player_Down_Roll_SpriteSheet_clip.events.push_back({41,41, 
+            Player_Down_Roll_SpriteSheet_clip.events.push_back({46,46, 
                 [playerPtr]() 
                 {
                 playerPtr->getComponentOfType<GE::Hittable>().setInvincible(false); // Make the player vulnerable again after the roll
@@ -963,21 +997,41 @@ namespace GE
                     controllerPtr->unlockRollMovement(); // Unlock the roll movement at the end of the roll
                 }});
 
+            Player_Right_Attack_1_SpriteSheet_clip.events.push_back({0,0, 
+                [&]() 
+                {
+                    characterController.lockFacing();
+                }});
             Player_Right_Attack_1_SpriteSheet_clip.events.push_back({8,8, 
                 [playerPtr, controllerPtr]() 
                 {
                 // Execute attack logic when the last frame of the attack animation is reached
                 playerPtr->getComponentOfType<GE::LightAttack>().execute(controllerPtr->getFacingDirection());
                 }});
+            Player_Right_Attack_1_SpriteSheet_clip.events.push_back({17,17, 
+                [&]() 
+                {
+                    characterController.unlockFacing();
+                }});
 
+            Player_Right_Attack_2_SpriteSheet_clip.events.push_back({0,0, 
+                [&]() 
+                {
+                    characterController.lockFacing();
+                }});
             Player_Right_Attack_2_SpriteSheet_clip.events.push_back({16,16,
                 [playerPtr, controllerPtr]() 
                 {
                 // Execute heavy attack logic
                 playerPtr->getComponentOfType<GE::HeavyAttack>().execute(controllerPtr->getFacingDirection());
                 }});
+            Player_Right_Attack_2_SpriteSheet_clip.events.push_back({41,41, 
+                [&]() 
+                {
+                    characterController.unlockFacing();
+                }});
             
-            Player_Right_Roll_SpriteSheet_clip.events.push_back({10,40, 
+            Player_Right_Roll_SpriteSheet_clip.events.push_back({0,45, 
                 [playerPtr]()
                 {
                 // Execute roll logic
@@ -991,7 +1045,7 @@ namespace GE
                 controllerPtr->lockRollMovement();
                 }});
 
-            Player_Right_Roll_SpriteSheet_clip.events.push_back({41,41,
+            Player_Right_Roll_SpriteSheet_clip.events.push_back({46,46,
                 [playerPtr]()
                 {
                 playerPtr->getComponentOfType<GE::Hittable>().setInvincible(false); // Make the player vulnerable again after the roll
@@ -1003,21 +1057,41 @@ namespace GE
                     controllerPtr->unlockRollMovement(); // Unlock the roll movement at the end of the roll
                 }});
 
+            Player_Up_Attack_1_SpriteSheet_clip.events.push_back({0,0, 
+                [&]() 
+                {
+                    characterController.lockFacing();
+                }});
             Player_Up_Attack_1_SpriteSheet_clip.events.push_back({8,8, 
                 [playerPtr, controllerPtr]() 
                 {
                 // Execute attack logic when the last frame of the attack animation is reached
-                playerPtr->getComponentOfType<GE::LightAttack>().execute(controllerPtr->getFacingDirection());
+                playerPtr->getComponentOfType<GE::UpAttack>().execute(controllerPtr->getFacingDirection());
+                }});
+            Player_Up_Attack_1_SpriteSheet_clip.events.push_back({17,17, 
+                [&]() 
+                {
+                    characterController.unlockFacing();
                 }});
 
+            Player_Up_Attack_2_SpriteSheet_clip.events.push_back({0,0, 
+                [&]() 
+                {
+                    characterController.lockFacing();
+                }});
             Player_Up_Attack_2_SpriteSheet_clip.events.push_back({16,16,
                 [playerPtr, controllerPtr]()
                 {
                 // Execute heavy attack logic
                 playerPtr->getComponentOfType<GE::HeavyAttack>().execute(controllerPtr->getFacingDirection());
                 }});
+            Player_Up_Attack_2_SpriteSheet_clip.events.push_back({41,41, 
+                [&]() 
+                {
+                    characterController.unlockFacing();
+                }});
 
-            Player_Up_Roll_SpriteSheet_clip.events.push_back({10,40,
+            Player_Up_Roll_SpriteSheet_clip.events.push_back({0,45,
                 [playerPtr]()
                 {
                 // Execute roll logic
@@ -1031,7 +1105,7 @@ namespace GE
                 controllerPtr->lockRollMovement();
                 }});
 
-            Player_Up_Roll_SpriteSheet_clip.events.push_back({41,41,
+            Player_Up_Roll_SpriteSheet_clip.events.push_back({46,46,
                 [playerPtr]()
                 {
                 playerPtr->getComponentOfType<GE::Hittable>().setInvincible(false); // Make the player vulnerable again after the roll
@@ -1043,21 +1117,41 @@ namespace GE
                     controllerPtr->unlockRollMovement(); // Unlock the roll movement at the end of the roll
                 }});
 
+            Player_Left_Attack_1_SpriteSheet_clip.events.push_back({0,0, 
+                [&]() 
+                {
+                    characterController.lockFacing();
+                }});
             Player_Left_Attack_1_SpriteSheet_clip.events.push_back({8,8,
                 [playerPtr, controllerPtr]()
                 {
                 // Execute attack logic when the last frame of the attack animation is reached
                 playerPtr->getComponentOfType<GE::LightAttack>().execute(controllerPtr->getFacingDirection());
                 }});
+            Player_Left_Attack_1_SpriteSheet_clip.events.push_back({17,17, 
+                [&]() 
+                {
+                    characterController.unlockFacing();
+                }});
 
+            Player_Left_Attack_2_SpriteSheet_clip.events.push_back({0,0, 
+                [&]() 
+                {
+                    characterController.lockFacing();
+                }});
             Player_Left_Attack_2_SpriteSheet_clip.events.push_back({16,16,
                 [playerPtr, controllerPtr]()
                 {
                 // Execute heavy attack logic
                 playerPtr->getComponentOfType<GE::HeavyAttack>().execute(controllerPtr->getFacingDirection());
                 }});
+            Player_Left_Attack_2_SpriteSheet_clip.events.push_back({41,41, 
+                [&]() 
+                {
+                    characterController.unlockFacing();
+                }});
 
-            Player_Left_Roll_SpriteSheet_clip.events.push_back({10,40,
+            Player_Left_Roll_SpriteSheet_clip.events.push_back({0,45,
                 [playerPtr]()
                 {
                 // Execute roll logic
@@ -1071,7 +1165,7 @@ namespace GE
                 controllerPtr->lockRollMovement();
                 }});
 
-            Player_Left_Roll_SpriteSheet_clip.events.push_back({41,41,
+            Player_Left_Roll_SpriteSheet_clip.events.push_back({46,46,
                 [playerPtr]()
                 {
                 playerPtr->getComponentOfType<GE::Hittable>().setInvincible(false); // Make the player vulnerable again after the roll
