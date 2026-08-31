@@ -26,6 +26,8 @@ namespace GE
             return instance;
         }
         bool spawn(float x, float y, int renderOrder);
+        bool isPositionValid(float x, float y, float enemyWidth, float enemyHeight, 
+                                    const std::vector<GameObject*>& gameObjects) const;
     private:
         static std::vector<GameObject*> enemies;
         //singleton pattern

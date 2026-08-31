@@ -3,6 +3,7 @@
 #include "core/PrefabFactory.hpp"
 #include "core/Engine.hpp"
 #include "core/Scene.hpp"
+#include "core/CollisionBox.hpp"
 
 #include <algorithm>
 
@@ -61,6 +62,37 @@ namespace GE
                 ++it;
             }
         }
+    }
+
+    bool EnemyManager::isPositionValid(float x, float y, float enemyWidth, float enemyHeight, 
+                                    const std::vector<GameObject*>& gameObjects) const
+    {
+        const float enemyHalfWidth = enemyWidth / 2.0f;
+        const float enemyHalfHeight = enemyHeight / 2.0f;
+
+        for (const auto& obj : gameObjects)
+        {
+            if (obj->hasComponentOfType<CollisionBox>())
+            {
+                auto& collisionBox = obj->getComponentOfType<CollisionBox>();
+                float objX = obj->getX();
+                float objY = obj->getY();
+                float halfWidth = collisionBox.getWidth() / 2.0f;
+                float halfHeight = collisionBox.getHeight() / 2.0f;
+
+                // Test rettangolo-contro-rettangolo (AABB), non punto-contro-rettangolo
+                bool overlapX = (x - enemyHalfWidth) < (objX + halfWidth) && 
+                                (x + enemyHalfWidth) > (objX - halfWidth);
+                bool overlapY = (y - enemyHalfHeight) < (objY + halfHeight) && 
+                                (y + enemyHalfHeight) > (objY - halfHeight);
+
+                if (overlapX && overlapY)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     bool EnemyManager::spawn(float x, float y, int renderOrder)

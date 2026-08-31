@@ -92,7 +92,7 @@ namespace GE
 
             //add a collision so that the player cant run over the skeleton enemy
             skeletonEnemy->addComponent<GE::CollisionBox>(35.0f, 70.0f); //width, height
-            skeletonEnemy->getComponentOfType<GE::CollisionBox>().setDebugPrint(true);
+            skeletonEnemy->getComponentOfType<GE::CollisionBox>().setDebugPrint(false);
             //link the controller to the animator so movement multipliers apply (same as the player)
             characterController.setAnimator(&animator);
             //set the character controller to not be controlled by the player
@@ -114,8 +114,8 @@ namespace GE
             skeletonEnemy->addComponent<GE::Hittable>(35.0f); //health
 
             //print debug the attack collision
-            skeletonEnemy->getComponentOfType<GE::LightAttack>().setDebugPrint(true);
-            skeletonEnemy->getComponentOfType<GE::HeavyAttack>().setDebugPrint(true);
+            skeletonEnemy->getComponentOfType<GE::LightAttack>().setDebugPrint(false);
+            skeletonEnemy->getComponentOfType<GE::HeavyAttack>().setDebugPrint(false);
 
             //add a simple chase AI that drives CharacterController via move intent
             skeletonEnemy->addComponent<GE::EnemyAI>();
@@ -548,7 +548,7 @@ namespace GE
             player->getComponentOfType<GE::CharacterController>().setYMovementEnabled(true);
 
             //add hittable component to the player so the skeleton can damage it
-            player->addComponent<GE::Hittable>(400.0f); //health
+            player->addComponent<GE::Hittable>(600.0f); //health
             
             GE::SpriteSheet* Player_Down_Attack_1_SpriteSheet;
             GE::SpriteSheet* Player_Down_Attack_2_SpriteSheet;
@@ -695,17 +695,17 @@ namespace GE
 
             //add attack components to player
             sf::Vector2f lightAttackCollisionBox(80.0f, 20.0f); //width, height
-            player->addComponent<GE::LightAttack>(10.0f, 1.0f, lightAttackCollisionBox); //damage, cooldown, collision box, id
-            player->getComponentOfType<GE::LightAttack>().setDebugPrint(true); //set to true to see the attack collision box
+            player->addComponent<GE::LightAttack>(20.0f, 1.0f, lightAttackCollisionBox); //damage, cooldown, collision box, id
+            player->getComponentOfType<GE::LightAttack>().setDebugPrint(false); //set to true to see the attack collision box
 
             sf::Vector2f heavyAttackCollisionBox(70.0f, 100.0f); //width, height
-            player->addComponent<GE::HeavyAttack>(25.0f, 2.0f, heavyAttackCollisionBox); //damage, cooldown, collision box, id
-            player->getComponentOfType<GE::HeavyAttack>().setDebugPrint(true);
+            player->addComponent<GE::HeavyAttack>(35.0f, 2.0f, heavyAttackCollisionBox); //damage, cooldown, collision box, id
+            player->getComponentOfType<GE::HeavyAttack>().setDebugPrint(false);
             player->addComponent<GE::Hittable>(100.0f); //add hittable component to player with 100 health
 
             sf::Vector2f UpwardAttackCollisionBox(20.0f, 80.0f); //width, height
-            player->addComponent<GE::UpAttack>(15.0f, 1.5f, UpwardAttackCollisionBox); //damage, cooldown, collision box, id
-            player->getComponentOfType<GE::UpAttack>().setDebugPrint(true);
+            player->addComponent<GE::UpAttack>(20.0f, 1.0f, UpwardAttackCollisionBox); //damage, cooldown, collision box, id
+            player->getComponentOfType<GE::UpAttack>().setDebugPrint(false);
 
             ///////////////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////////////
@@ -1216,1168 +1216,148 @@ namespace GE
             ///////////////////////////////////////////////////////////////////////////////////////////
                                         /*MAKE TRANSITIONS*/
 
-            //idle down to walk down
-            playerAnimator.addTransition(
-                "idle_down",
-                "walk_down",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -2; //1 for right, -1 for left, 2 for up, -2 for down
-                }
-            );
-
-            //walk down to idle down
-            playerAnimator.addTransition(
-                "walk_down",
-                "idle_down",
-                [controllerPtr]() {
-                    return !controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-            
-            //idle down to attack down
-            playerAnimator.addTransition(
-                "idle_down",
-                "attack_down",
-                [controllerPtr]() {
-                    return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Left) && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            //attack down to idle down
-            playerAnimator.addTransition(
-                "attack_down",
-                "idle_down",
-                [animatorPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "attack_down" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack_down").frames.size()) - 1;
-                }
-            );
-
-            //walk down to attack down 
-            playerAnimator.addTransition(
-                "walk_down",
-                "attack_down",
-                [controllerPtr]() {
-                    return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Left) && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            //attack down to walk down
-            playerAnimator.addTransition(
-                "attack_down",
-                "walk_down",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "attack_down" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack_down").frames.size()) - 1 &&
-                    controllerPtr->isMoving();
-                }
-            );
-
-            //idle down to attack2 down
-            playerAnimator.addTransition(
-                "idle_down",
-                "attack2_down",
-                [controllerPtr]() {
-                    return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Right) && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            //attack2 down to idle down
-            playerAnimator.addTransition(
-                "attack2_down",
-                "idle_down",
-                [animatorPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "attack2_down" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack2_down").frames.size()) - 1;
-                }
-            );
-
-            //walk down to attack2 down
-            playerAnimator.addTransition(
-                "walk_down",
-                "attack2_down",
-                [controllerPtr]() {
-                    return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Right) && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            //attack2 down to walk down
-            playerAnimator.addTransition(
-                "attack2_down",
-                "walk_down",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "attack2_down" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack2_down").frames.size()) - 1 &&
-                    controllerPtr->isMoving();
-                }
-            );
-
-            //walk down to roll down
-            playerAnimator.addTransition(
-                "walk_down",
-                "roll_down",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_down",
-                "run_down",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_down" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_down").frames.size()) - 1 &&
-                    controllerPtr->isMoving() && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_down",
-                "walk_down",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_down" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_down").frames.size()) - 1 &&
-                    controllerPtr->isMoving() && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_down",
-                "idle_down",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_down" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_down").frames.size()) - 1 &&
-                    !controllerPtr->isMoving() && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_down",
-                "run_right",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_down" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_down").frames.size()) - 1 &&
-                    controllerPtr->isMoving() && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_down",
-                "walk_right",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_down" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_down").frames.size()) - 1 &&
-                    controllerPtr->isMoving() && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_down",
-                "run_up",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_down" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_down").frames.size()) - 1 &&
-                    controllerPtr->isMoving() && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_down",
-                "walk_up",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_down" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_down").frames.size()) - 1 &&
-                    controllerPtr->isMoving() && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            //walk down to run down 
-            playerAnimator.addTransition(
-                "walk_down",
-                "run_down",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            //run down to walk down
-            playerAnimator.addTransition(
-                "run_down",
-                "walk_down",
-                [controllerPtr]() {
-                    return !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_down",
-                "run_right",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_down",
-                "run_up",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            //now right
-            //idle to walk, walk to idle, idle to attack, attack to idle, walk to attack, attack to walk, 
-            //idle to attack2, attack2 to idle, walk to attack2, attack2 to walk, walk to roll, roll to walk, walk to run, run to walk
-
-            playerAnimator.addTransition(
-                "idle_right",
-                "walk_right",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 1; //1 for right, -1 for left, 2 for up, -2 for down
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_right",
-                "idle_right",
-                [controllerPtr]() {
-                    return !controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_right",
-                "walk_down",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_right",
-                "walk_up",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "idle_right",
-                "attack_right",
-                [controllerPtr]() {
-                    return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Left) && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "attack_right",
-                "idle_right",
-                [animatorPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "attack_right" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack_right").frames.size()) - 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_right",
-                "attack_right",
-                [controllerPtr]() {
-                    return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Left) && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "attack_right",
-                "walk_right",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "attack_right" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack_right").frames.size()) - 1 &&
-                    controllerPtr->isMoving();
-                }
-            );
-
-            playerAnimator.addTransition(
-                "idle_right",
-                "attack2_right",
-                [controllerPtr]() {
-                    return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Right) && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "attack2_right",
-                "idle_right",
-                [animatorPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "attack2_right" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack2_right").frames.size()) - 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_right",
-                "attack2_right",
-                [controllerPtr]() {
-                    return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Right) && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "attack2_right",
-                "walk_right",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "attack2_right" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack2_right").frames.size()) - 1 &&
-                    controllerPtr->isMoving();
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_right",
-                "roll_right",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_right",
-                "walk_right",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_right" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_right").frames.size()) - 1 &&
-                    controllerPtr->isMoving();
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_right",
-                "run_right",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_right",
-                "walk_right",
-                [controllerPtr]() {
-                    return !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_right",
-                "run_down",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_right",
-                "run_up",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_right",
-                "roll_right",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_right",
-                "run_right",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_right" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_right").frames.size()) - 1 &&
-                    controllerPtr->isMoving() && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_right",
-                "idle_right",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_right" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_right").frames.size()) - 1 &&
-                    !controllerPtr->isMoving() && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_right",
-                "walk_right",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_right" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_right").frames.size()) - 1 &&
-                    controllerPtr->isMoving() && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_right",
-                "run_right",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_right" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_right").frames.size()) - 1 &&
-                    controllerPtr->isMoving() && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_right",
-                "idle_right",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_right" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_right").frames.size()) - 1 &&
-                    !controllerPtr->isMoving() && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            //now do up transitions
-
-            playerAnimator.addTransition(
-                "idle_up",
-                "walk_up",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 2; //1 for right, -1 for left, 2 for up, -2 for down
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_up",
-                "idle_up",
-                [controllerPtr]() {
-                    return !controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "idle_up",
-                "attack_up",
-                [controllerPtr]() {
-                    return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Left) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "attack_up",
-                "idle_up",
-                [animatorPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "attack_up" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack_up").frames.size()) - 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_up",
-                "attack_up",
-                [controllerPtr]() {
-                    return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Left) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "attack_up",
-                "walk_up",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "attack_up" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack_up").frames.size()) - 1 &&
-                    controllerPtr->isMoving();
-                }
-            );
-
-            playerAnimator.addTransition(
-                "idle_up",
-                "attack2_up",
-                [controllerPtr]() {
-                    return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Right) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "attack2_up",
-                "idle_up",
-                [animatorPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "attack2_up" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack2_up").frames.size()) - 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_up",
-                "attack2_up",
-                [controllerPtr]() {
-                    return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Right) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "attack2_up",
-                "walk_up",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "attack2_up" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack2_up").frames.size()) - 1 &&
-                    controllerPtr->isMoving();
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_up",
-                "roll_up",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_up",
-                "walk_up",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_up" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_up").frames.size()) - 1 &&
-                    controllerPtr->isMoving();
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_up",
-                "run_up",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_up",
-                "walk_up",
-                [controllerPtr]() {
-                    return !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_up",
-                "run_right",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_up",
-                "run_down",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_up",
-                "roll_up",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_up",
-                "run_up",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_up" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_up").frames.size()) - 1 &&
-                    controllerPtr->isMoving() && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_up",
-                "idle_up",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_up" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_up").frames.size()) - 1 &&
-                    !controllerPtr->isMoving() && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_up",
-                "walk_up",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_up" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_up").frames.size()) - 1 &&
-                    controllerPtr->isMoving() && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_up",
-                "run_up",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_up" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_up").frames.size()) - 1 &&
-                    controllerPtr->isMoving() && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_up",
-                "idle_up",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_up" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_up").frames.size()) - 1 &&
-                    !controllerPtr->isMoving() && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            // Entry points into left-direction states from every other direction.
-            playerAnimator.addTransition(
-                "idle_down",
-                "idle_left",
-                [controllerPtr]() {
-                    return !controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "idle_right",
-                "idle_left",
-                [controllerPtr]() {
-                    return !controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "idle_up",
-                "idle_left",
-                [controllerPtr]() {
-                    return !controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_down",
-                "walk_left",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_right",
-                "walk_left",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_up",
-                "walk_left",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_down",
-                "run_left",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_right",
-                "run_left",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_up",
-                "run_left",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            // now left
-            playerAnimator.addTransition(
-                "idle_left",
-                "walk_left",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_left",
-                "idle_left",
-                [controllerPtr]() {
-                    return !controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_left",
-                "walk_down",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_left",
-                "walk_up",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "idle_left",
-                "attack_left",
-                [controllerPtr]() {
-                    return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Left) && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "attack_left",
-                "idle_left",
-                [animatorPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "attack_left" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack_left").frames.size()) - 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_left",
-                "attack_left",
-                [controllerPtr]() {
-                    return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Left) && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "attack_left",
-                "walk_left",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "attack_left" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack_left").frames.size()) - 1 &&
-                    controllerPtr->isMoving();
-                }
-            );
-
-            playerAnimator.addTransition(
-                "idle_left",
-                "attack2_left",
-                [controllerPtr]() {
-                    return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Right) && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "attack2_left",
-                "idle_left",
-                [animatorPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "attack2_left" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack2_left").frames.size()) - 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_left",
-                "attack2_left",
-                [controllerPtr]() {
-                    return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Right) && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "attack2_left",
-                "walk_left",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "attack2_left" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("attack2_left").frames.size()) - 1 &&
-                    controllerPtr->isMoving();
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_left",
-                "roll_left",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_left",
-                "walk_left",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_left" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_left").frames.size()) - 1 &&
-                    controllerPtr->isMoving();
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_left",
-                "run_left",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_left",
-                "walk_left",
-                [controllerPtr]() {
-                    return !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_left",
-                "run_down",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_left",
-                "run_up",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_left",
-                "roll_left",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_left",
-                "run_left",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_left" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_left").frames.size()) - 1 &&
-                    controllerPtr->isMoving() && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_left",
-                "idle_left",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_left" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_left").frames.size()) - 1 &&
-                    !controllerPtr->isMoving() && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_left",
-                "walk_left",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_left" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_left").frames.size()) - 1 &&
-                    controllerPtr->isMoving() && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "roll_left",
-                "run_left",
-                [animatorPtr, controllerPtr]() {
-                    return animatorPtr->getCurrentAnimation() == "roll_left" && 
-                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation("roll_left").frames.size()) - 1 &&
-                    controllerPtr->isMoving() && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            // left to all other directions: when the facing direction changes, the state must enter the matching left/right/up/down animation
-            playerAnimator.addTransition(
-                "idle_left",
-                "walk_right",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "idle_left",
-                "walk_up",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "idle_left",
-                "walk_down",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_left",
-                "idle_right",
-                [controllerPtr]() {
-                    return !controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_left",
-                "idle_up",
-                [controllerPtr]() {
-                    return !controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_left",
-                "idle_down",
-                [controllerPtr]() {
-                    return !controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_left",
-                "walk_right",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_left",
-                "walk_up",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_left",
-                "walk_down",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_left",
-                "run_right",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_left",
-                "run_up",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "run_left",
-                "run_down",
-                [controllerPtr]() {
-                    return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift) && controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            //walk right to walk left
-            playerAnimator.addTransition(
-                "walk_right",
-                "walk_left",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            //idle right to walk left
-            playerAnimator.addTransition(
-                "idle_right",
-                "walk_left",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            //idle down to walk left
-            playerAnimator.addTransition(
-                "idle_down",
-                "walk_left",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-
-            //idle up to walk left
-            playerAnimator.addTransition(
-                "idle_up",
-                "walk_left",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -1;
-                }
-            );
-            //idle down to walk right
-            playerAnimator.addTransition(
-                "idle_down",
-                "walk_right",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 1; //1 for right, -1 for left, 2 for up, -2 for down
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_right",
-                "idle_down",
-                [controllerPtr]() {
-                    return !controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            //idle down to walk up
-            playerAnimator.addTransition(
-                "idle_down",
-                "walk_up",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 2; //1 for right, -1 for left, 2 for up, -2 for down
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_up",
-                "idle_down",
-                [controllerPtr]() {
-                    return !controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            //idle up to walk right
-            playerAnimator.addTransition(
-                "idle_up",
-                "walk_right",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 1; //1 for right, -1 for left, 2 for up, -2 for down
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_right",
-                "idle_up",
-                [controllerPtr]() {
-                    return !controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            //idle up to walk down
-            playerAnimator.addTransition(
-                "idle_up",
-                "walk_down",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -2; //1 for right, -1 for left, 2 for up, -2 for down
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_down",
-                "idle_up",
-                [controllerPtr]() {
-                    return !controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            //idle right to walk down
-            playerAnimator.addTransition(
-                "idle_right",
-                "walk_down",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -2; //1 for right, -1 for left, 2 for up, -2 for down
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_down",
-                "idle_right",
-                [controllerPtr]() {
-                    return !controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_down",
-                "walk_right",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_down",
-                "walk_up",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            //idle right to walk up
-            playerAnimator.addTransition(
-                "idle_right",
-                "walk_up",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 2; //1 for right, -1 for left, 2 for up, -2 for down
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_up",
-                "idle_right",
-                [controllerPtr]() {
-                    return !controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 2;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_up",
-                "walk_right",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == 1;
-                }
-            );
-
-            playerAnimator.addTransition(
-                "walk_up",
-                "walk_down",
-                [controllerPtr]() {
-                    return controllerPtr->isMoving() && controllerPtr->getFacingDirection() == -2;
-                }
-            );
+            struct DirectionInfo
+            {
+                const char* name;
+                int facingCode; // 1=right, -1=left, 2=up, -2=down
+            };
+
+            const DirectionInfo directions[] = {
+                {"down", -2}, {"right", 1}, {"up", 2}, {"left", -1}
+            };
+
+            struct LocomotionMode
+            {
+                const char* name;
+                std::function<bool(GE::CharacterController*)> matches;
+            };
+
+            const LocomotionMode locomotionModes[] = {
+                {"idle", [](GE::CharacterController* c) { return !c->isMoving(); }},
+                {"walk", [](GE::CharacterController* c) { return c->isMoving() && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift); }},
+                {"run",  [](GE::CharacterController* c) { return c->isMoving() && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift); }}
+            };
+
+            // Ogni stato di locomozione può saltare direttamente a ogni altro stato di
+            // locomozione la cui condizione (direzione + modalità) è vera in questo momento.
+            for (const auto& srcDir : directions)
+            {
+                for (const auto& srcMode : locomotionModes)
+                {
+                    const std::string sourceAnim = std::string(srcMode.name) + "_" + srcDir.name;
+
+                    for (const auto& dstDir : directions)
+                    {
+                        for (const auto& dstMode : locomotionModes)
+                        {
+                            const std::string targetAnim = std::string(dstMode.name) + "_" + dstDir.name;
+                            if (targetAnim == sourceAnim) continue;
+
+                            playerAnimator.addTransition(
+                                sourceAnim, targetAnim,
+                                [controllerPtr, matches = dstMode.matches, facing = dstDir.facingCode]() {
+                                    return matches(controllerPtr) && controllerPtr->getFacingDirection() == facing;
+                                }
+                            );
+                        }
+                    }
+                }
+            }
+
+
+            for (const auto& dir : directions)
+            {
+                const std::string idleAnim    = std::string("idle_") + dir.name;
+                const std::string walkAnim    = std::string("walk_") + dir.name;
+                const std::string attackAnim  = std::string("attack_") + dir.name;
+                const std::string attack2Anim = std::string("attack2_") + dir.name;
+                const int facing = dir.facingCode;
+
+                // ingresso in attacco, solo da idle/walk (non da run), gated dal cooldown
+                for (const std::string& fromAnim : { idleAnim, walkAnim })
+                {
+                    playerAnimator.addTransition(
+                        fromAnim, attackAnim,
+                        [playerPtr, controllerPtr, facing]() {
+                            return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Left)
+                                && controllerPtr->getFacingDirection() == facing
+                                && !playerPtr->getComponentOfType<GE::LightAttack>().isOnCooldown();
+                        }
+                    );
+
+                    playerAnimator.addTransition(
+                        fromAnim, attack2Anim,
+                        [playerPtr, controllerPtr, facing]() {
+                            return GE::Input::isMouseButtonJustPressed(GE::MouseButton::Right)
+                                && controllerPtr->getFacingDirection() == facing
+                                && !playerPtr->getComponentOfType<GE::HeavyAttack>().isOnCooldown();
+                        }
+                    );
+                }
+
+                // uscita dall'attacco all'ultimo frame, verso idle o walk (stessa direzione)
+                for (const std::string& attackName : { attackAnim, attack2Anim })
+                {
+                    playerAnimator.addTransition(
+                        attackName, idleAnim,
+                        [animatorPtr, controllerPtr, attackName]() {
+                            return animatorPtr->getCurrentAnimation() == attackName &&
+                                animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation(attackName).frames.size()) - 1 &&
+                                !controllerPtr->isMoving();
+                        }
+                    );
+                    playerAnimator.addTransition(
+                        attackName, walkAnim,
+                        [animatorPtr, controllerPtr, attackName]() {
+                            return animatorPtr->getCurrentAnimation() == attackName &&
+                                animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation(attackName).frames.size()) - 1 &&
+                                controllerPtr->isMoving();
+                        }
+                    );
+                }
+            }
+
+            for (const auto& dir : directions)
+            {
+                const std::string walkAnim = std::string("walk_") + dir.name;
+                const std::string runAnim  = std::string("run_") + dir.name;
+                const std::string rollAnim = std::string("roll_") + dir.name;
+                const int facing = dir.facingCode;
+
+                // ingresso in roll da walk o run, stessa direzione
+                for (const std::string& fromAnim : { walkAnim, runAnim })
+                {
+                    playerAnimator.addTransition(
+                        fromAnim, rollAnim,
+                        [controllerPtr, facing]() {
+                            return sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)
+                                && controllerPtr->getFacingDirection() == facing;
+                        }
+                    );
+                }
+
+                // uscita dal roll all'ultimo frame: va verso QUALUNQUE stato di locomozione
+                // che corrisponde all'input corrente (riusa la stessa logica del blocco di locomozione)
+                for (const auto& dstDir : directions)
+                {
+                    for (const auto& dstMode : locomotionModes)
+                    {
+                        const std::string targetAnim = std::string(dstMode.name) + "_" + dstDir.name;
+
+                        playerAnimator.addTransition(
+                            rollAnim, targetAnim,
+                            [animatorPtr, controllerPtr, matches = dstMode.matches, facing = dstDir.facingCode, rollAnim]() {
+                                return animatorPtr->getCurrentAnimation() == rollAnim &&
+                                    animatorPtr->getCurrentFrame() == static_cast<int>(animatorPtr->getAnimation(rollAnim).frames.size()) - 1 &&
+                                    matches(controllerPtr) &&
+                                    controllerPtr->getFacingDirection() == facing;
+                            }
+                        );
+                    }
+                }
+            }
 
             
-
-
             ///////////////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////////////

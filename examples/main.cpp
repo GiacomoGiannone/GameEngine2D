@@ -3,7 +3,7 @@
 
 int main()
 {
-    GE::Engine engine(800, 600, "Game Engine");
+    GE::Engine engine(1920, 1080, "Game Engine");
     MainScene mainScene;
     engine.setScene(&mainScene);
 
